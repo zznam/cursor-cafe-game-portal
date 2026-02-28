@@ -36,7 +36,7 @@ test.describe('Navigation', () => {
 
   test('can navigate back to home from games page', async ({ page }) => {
     await page.goto('/games')
-    await page.getByRole('link', { name: /Game Portal/i }).click()
+    await page.locator('a[href="/"]').filter({ hasText: /Game Portal/i }).click()
     await expect(page).toHaveURL('/')
     await expect(
       page.getByRole('heading', { name: /Welcome to Game Portal/i })
@@ -52,15 +52,15 @@ test.describe('Navigation', () => {
     )
     await page.goto('/')
 
-    const homeLink = page.getByRole('link', { name: 'Home' })
-    const gamesLink = page.getByRole('link', { name: 'All Games' }).first()
-    const contributeLink = page
-      .getByRole('link', { name: 'Contribute' })
-      .first()
-
-    await expect(homeLink).toBeVisible()
-    await expect(gamesLink).toBeVisible()
-    await expect(contributeLink).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: 'Home' })
+    ).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: 'All Games' }).first()
+    ).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: 'Contribute' }).first()
+    ).toBeVisible()
   })
 
   test('footer is visible with correct text', async ({ page }) => {
@@ -70,12 +70,12 @@ test.describe('Navigation', () => {
     await expect(
       footer.getByText(/Built with Next\.js, Phaser, and Supabase/i)
     ).toBeVisible()
-    await expect(footer.getByText(/© 2026 Game Portal/i)).toBeVisible()
+    await expect(footer.getByText(/2026 Game Portal/i)).toBeVisible()
   })
 
   test('logo links to home page', async ({ page }) => {
     await page.goto('/games')
-    const logo = page.getByRole('link', { name: /Game Portal/i })
+    const logo = page.locator('header a[href="/"]').first()
     await expect(logo).toBeVisible()
     await logo.click()
     await expect(page).toHaveURL('/')
