@@ -1,5 +1,6 @@
 import { getGames } from '@/lib/api'
 import { GameCard } from '@/components/game-card'
+import { RecentlyPlayed } from '@/components/recently-played'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Sparkles, TrendingUp, Star } from 'lucide-react'
@@ -9,14 +10,14 @@ import { GAME_CATEGORIES } from '@/types/game'
 export const revalidate = 60
 
 export default async function HomePage() {
-  let featuredGames = []
-  let popularGames = []
-  let newGames = []
+  let featuredGames: Awaited<ReturnType<typeof getGames>> = []
+  let popularGames: Awaited<ReturnType<typeof getGames>> = []
 
   try {
-    featuredGames = await getGames({ featured: true, limit: 6 })
-    popularGames = await getGames({ limit: 8 })
-    newGames = await getGames({ limit: 8 })
+    ;[featuredGames, popularGames] = await Promise.all([
+      getGames({ featured: true, limit: 6 }),
+      getGames({ limit: 8 }),
+    ])
   } catch (error) {
     console.error('Failed to load games:', error)
   }
@@ -24,16 +25,17 @@ export default async function HomePage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <section className="text-center mb-16">
-        <div className="inline-block mb-4">
-          <Sparkles className="w-16 h-16 text-yellow-300 animate-pulse" />
+        <div className="inline-block mb-4 animate-pulse">
+          <Sparkles className="w-16 h-16 text-yellow-300" />
         </div>
-        <h1 className="text-6xl font-bold text-white mb-4">
+        <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-linear-to-r from-purple-300 via-pink-300 to-yellow-300 bg-clip-text text-transparent">
           Welcome to Game Portal
         </h1>
-        <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-          Discover and play amazing Phaser games created by talented developers from around the world
+        <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+          Discover and play amazing Phaser games created by talented developers
+          from around the world
         </p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex flex-wrap gap-4 justify-center">
           <Link href="/games">
             <Button size="lg" className="gap-2">
               <Sparkles className="w-5 h-5" />
@@ -41,7 +43,11 @@ export default async function HomePage() {
             </Button>
           </Link>
           <Link href="/contribute">
-            <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+            >
               Contribute a Game
             </Button>
           </Link>
@@ -61,6 +67,8 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <RecentlyPlayed />
 
       <section className="mb-16">
         <div className="flex items-center gap-2 mb-6">
@@ -95,15 +103,6 @@ export default async function HomePage() {
             </TabsContent>
           ))}
         </Tabs>
-      </section>
-
-      <section>
-        <h2 className="text-3xl font-bold text-white mb-6">New Releases</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {newGames.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
-        </div>
       </section>
     </div>
   )
