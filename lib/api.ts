@@ -68,7 +68,7 @@ export async function getGameBySlug(slug: string): Promise<GameMetadata | null> 
   const gameData: any = data
   return {
     id: gameData.id,
-  slug: gameData.slug,
+    slug: gameData.slug,
     title: gameData.title,
     description: gameData.description,
     thumbnailUrl: gameData.thumbnail_url,

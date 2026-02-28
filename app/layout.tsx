@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type {Metadata} from "next";
+import {Inter} from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import { Gamepad2 } from "lucide-react";
-import { MobileNav } from "@/components/mobile-nav";
-import { SearchBar } from "@/components/search-bar";
+import {Gamepad2} from "lucide-react";
+import {MobileNav} from "@/components/mobile-nav";
+import {SearchBar} from "@/components/search-bar";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
   title: "Game Portal - Play Amazing Phaser Games",

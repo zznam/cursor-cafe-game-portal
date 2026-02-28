@@ -2,13 +2,14 @@ import * as Phaser from 'phaser'
 
 const COLS = 4
 const ROWS = 4
-const CARD_W = 140
-const CARD_H = 160
-const GAP = 15
+const HEADER_H = 44
+const GAP = 10
+const CARD_W = Math.floor((800 - GAP * (COLS + 1)) / COLS)
+const CARD_H = Math.floor((600 - HEADER_H - GAP * (ROWS + 1)) / ROWS)
 const GRID_W = COLS * CARD_W + (COLS - 1) * GAP
 const GRID_H = ROWS * CARD_H + (ROWS - 1) * GAP
 const OFFSET_X = (800 - GRID_W) / 2
-const OFFSET_Y = (600 - GRID_H) / 2 + 25
+const OFFSET_Y = HEADER_H + (600 - HEADER_H - GRID_H) / 2
 
 const SYMBOLS = [
   { key: 'sym_circle', label: 'Circle', color: 0xff4444, draw: drawCircle },
@@ -21,29 +22,33 @@ const SYMBOLS = [
   { key: 'sym_hexagon', label: 'Hexagon', color: 0xffffff, draw: drawHexagon },
 ]
 
+const CX = CARD_W / 2
+const CY = CARD_H / 2
+const SYM_R = Math.min(CARD_W, CARD_H) * 0.28
+
 function drawCircle(gfx: Phaser.GameObjects.Graphics, color: number) {
   gfx.fillStyle(color, 1)
-  gfx.fillCircle(70, 80, 40)
+  gfx.fillCircle(CX, CY, SYM_R)
 }
 
 function drawSquare(gfx: Phaser.GameObjects.Graphics, color: number) {
   gfx.fillStyle(color, 1)
-  gfx.fillRect(30, 40, 80, 80)
+  gfx.fillRect(CX - SYM_R, CY - SYM_R, SYM_R * 2, SYM_R * 2)
 }
 
 function drawTriangle(gfx: Phaser.GameObjects.Graphics, color: number) {
   gfx.fillStyle(color, 1)
-  gfx.fillTriangle(70, 35, 30, 120, 110, 120)
+  gfx.fillTriangle(CX, CY - SYM_R, CX - SYM_R, CY + SYM_R, CX + SYM_R, CY + SYM_R)
 }
 
 function drawStar(gfx: Phaser.GameObjects.Graphics, color: number) {
   gfx.fillStyle(color, 1)
-  const cx = 70, cy = 80, outerR = 40, innerR = 18, points = 5
+  const outerR = SYM_R, innerR = SYM_R * 0.45, points = 5
   const verts: number[] = []
   for (let i = 0; i < points * 2; i++) {
     const r = i % 2 === 0 ? outerR : innerR
-    const angle = (Math.PI / 2) * -1 + (Math.PI / points) * i
-    verts.push(cx + r * Math.cos(angle), cy + r * Math.sin(angle))
+    const angle = -Math.PI / 2 + (Math.PI / points) * i
+    verts.push(CX + r * Math.cos(angle), CY + r * Math.sin(angle))
   }
   const polyPoints: Phaser.Geom.Point[] = []
   for (let i = 0; i < verts.length; i += 2) {
@@ -54,30 +59,31 @@ function drawStar(gfx: Phaser.GameObjects.Graphics, color: number) {
 
 function drawDiamond(gfx: Phaser.GameObjects.Graphics, color: number) {
   gfx.fillStyle(color, 1)
-  gfx.fillTriangle(70, 35, 30, 80, 70, 125)
-  gfx.fillTriangle(70, 35, 110, 80, 70, 125)
+  gfx.fillTriangle(CX, CY - SYM_R, CX - SYM_R * 0.7, CY, CX, CY + SYM_R)
+  gfx.fillTriangle(CX, CY - SYM_R, CX + SYM_R * 0.7, CY, CX, CY + SYM_R)
 }
 
 function drawHeart(gfx: Phaser.GameObjects.Graphics, color: number) {
   gfx.fillStyle(color, 1)
-  gfx.fillCircle(52, 65, 22)
-  gfx.fillCircle(88, 65, 22)
-  gfx.fillTriangle(30, 72, 110, 72, 70, 120)
+  const lr = SYM_R * 0.55
+  gfx.fillCircle(CX - lr * 0.55, CY - lr * 0.3, lr)
+  gfx.fillCircle(CX + lr * 0.55, CY - lr * 0.3, lr)
+  gfx.fillTriangle(CX - SYM_R * 0.75, CY, CX + SYM_R * 0.75, CY, CX, CY + SYM_R)
 }
 
 function drawCross(gfx: Phaser.GameObjects.Graphics, color: number) {
   gfx.fillStyle(color, 1)
-  gfx.fillRect(55, 40, 30, 80)
-  gfx.fillRect(30, 65, 80, 30)
+  const t = SYM_R * 0.4
+  gfx.fillRect(CX - t / 2, CY - SYM_R, t, SYM_R * 2)
+  gfx.fillRect(CX - SYM_R, CY - t / 2, SYM_R * 2, t)
 }
 
 function drawHexagon(gfx: Phaser.GameObjects.Graphics, color: number) {
   gfx.fillStyle(color, 1)
-  const cx = 70, cy = 80, r = 38
   const pts: Phaser.Geom.Point[] = []
   for (let i = 0; i < 6; i++) {
     const angle = (Math.PI / 3) * i - Math.PI / 6
-    pts.push(new Phaser.Geom.Point(cx + r * Math.cos(angle), cy + r * Math.sin(angle)))
+    pts.push(new Phaser.Geom.Point(CX + SYM_R * Math.cos(angle), CY + SYM_R * Math.sin(angle)))
   }
   gfx.fillPoints(pts, true)
 }
@@ -157,8 +163,9 @@ class MemoryMatchScene extends Phaser.Scene {
       gfx.lineStyle(3, 0xbb66ff, 1)
       gfx.strokeRoundedRect(2, 2, CARD_W - 4, CARD_H - 4, 12)
 
+      const qSize = Math.floor(Math.min(CARD_W, CARD_H) * 0.5)
       const questionMark = this.add.text(CARD_W / 2, CARD_H / 2, '?', {
-        fontSize: '64px',
+        fontSize: `${qSize}px`,
         color: '#bb66ff',
         fontStyle: 'bold',
       }).setOrigin(0.5)

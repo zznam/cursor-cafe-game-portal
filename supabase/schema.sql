@@ -131,3 +131,21 @@ CREATE POLICY "Anyone can update their ratings" ON ratings FOR UPDATE USING (tru
 CREATE POLICY "Anyone can insert comments" ON comments FOR INSERT WITH CHECK (true);
 CREATE POLICY "Anyone can insert leaderboard scores" ON leaderboards FOR INSERT WITH CHECK (true);
 CREATE POLICY "Anyone can insert analytics" ON analytics FOR INSERT WITH CHECK (true);
+
+-- Set up Storage for game assets and avatars
+INSERT INTO storage.buckets (id, name, public) VALUES ('game-assets', 'game-assets', true) ON CONFLICT DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true) ON CONFLICT DO NOTHING;
+
+-- Storage Policies for game-assets (Public Read)
+CREATE POLICY "Public Read for Game Assets" ON storage.objects FOR SELECT USING (bucket_id = 'game-assets');
+
+-- Storage Policies for game-assets (Authenticated Uploads - admin only in real world, auth for now)
+CREATE POLICY "Authenticated users can upload game assets" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'game-assets' AND auth.role() = 'authenticated');
+
+-- Storage Policies for avatars (Public Read)
+CREATE POLICY "Public Read for Avatars" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
+
+-- Storage Policies for avatars (User can upload own avatar)
+CREATE POLICY "Users can upload their own avatar" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'avatars' AND auth.uid() = owner);
+CREATE POLICY "Users can update their own avatar" ON storage.objects FOR UPDATE USING (bucket_id = 'avatars' AND auth.uid() = owner);
+

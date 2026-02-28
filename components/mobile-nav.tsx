@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import {useState} from 'react'
 import Link from 'next/link'
-import { Menu, X, Home, Gamepad2, Upload } from 'lucide-react'
+import {Menu, X, Home, Gamepad2, Upload} from 'lucide-react'
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
