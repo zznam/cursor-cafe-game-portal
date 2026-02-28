@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        <div className="min-h-screen game-portal-bg">
+        <div className="min-h-screen game-portal-bg flex flex-col">
           <header className="bg-black/30 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50">
             <div className="container mx-auto px-4 py-3 sm:py-4">
               <nav className="flex items-center justify-between gap-4">
@@ -72,9 +72,9 @@ export default function RootLayout({
             </div>
           </header>
 
-          <main>{children}</main>
+          <main className="flex-1">{children}</main>
 
-          <footer className="bg-black/30 backdrop-blur-xl border-t border-white/10 mt-20">
+          <footer className="bg-black/30 backdrop-blur-xl border-t border-white/10 mt-auto">
             <div className="container mx-auto px-4 py-8">
               <div className="text-center text-white/60">
                 <p className="mb-2 text-white/80">
