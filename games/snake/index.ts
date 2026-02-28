@@ -1,13 +1,15 @@
 import * as Phaser from 'phaser'
 
+const HEADER_H = 50
 const GRID_COLS = 20
 const GRID_ROWS = 20
-const CELL_W = 30
-const CELL_H = 30
+const CELL_SIZE = Math.floor((600 - HEADER_H) / GRID_ROWS)
+const CELL_W = CELL_SIZE
+const CELL_H = CELL_SIZE
 const AREA_W = GRID_COLS * CELL_W
 const AREA_H = GRID_ROWS * CELL_H
 const OFFSET_X = (800 - AREA_W) / 2
-const OFFSET_Y = 600 - AREA_H
+const OFFSET_Y = HEADER_H
 
 enum Direction {
   UP,
@@ -66,7 +68,7 @@ class SnakeScene extends Phaser.Scene {
     this.spawnFood()
 
     this.scoreText = this.add
-      .text(400, (OFFSET_Y - 10) / 2, 'Score: 0', {
+      .text(400, HEADER_H / 2, 'Score: 0', {
         fontSize: '28px',
         color: '#00ff88',
         fontStyle: 'bold',
