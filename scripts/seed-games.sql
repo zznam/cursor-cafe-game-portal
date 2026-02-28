@@ -51,6 +51,86 @@ INSERT INTO games (
   true
 ) ON CONFLICT (slug) DO NOTHING;
 
+-- Insert Snake game
+INSERT INTO games (
+  slug, title, description, thumbnail_url, category, tags, developer_name, package_name, version, featured
+) VALUES (
+  'snake',
+  'Neon Snake',
+  'Classic snake game with a neon twist. Eat food, grow longer, don''t crash! Speed increases as you grow.',
+  '/games/snake/thumbnail.png',
+  'Arcade',
+  ARRAY['classic', 'arcade', 'retro', 'snake'],
+  'Game Portal Team',
+  'snake',
+  '1.0.0',
+  true
+) ON CONFLICT (slug) DO NOTHING;
+
+-- Insert Flappy Bird game
+INSERT INTO games (
+  slug, title, description, thumbnail_url, category, tags, developer_name, package_name, version, featured
+) VALUES (
+  'flappy-bird',
+  'Neon Flap',
+  'Flap through neon pipes! Tap or press space to fly. How far can you go? The gap shrinks as you score higher.',
+  '/games/flappy-bird/thumbnail.png',
+  'Casual',
+  ARRAY['flappy', 'casual', 'one-button', 'endless'],
+  'Game Portal Team',
+  'flappy-bird',
+  '1.0.0',
+  true
+) ON CONFLICT (slug) DO NOTHING;
+
+-- Insert 2048 game
+INSERT INTO games (
+  slug, title, description, thumbnail_url, category, tags, developer_name, package_name, version, featured
+) VALUES (
+  '2048',
+  '2048',
+  'Slide and merge tiles to reach 2048! Use arrow keys to combine matching numbers. A brain-teasing puzzle classic.',
+  '/games/2048/thumbnail.png',
+  'Puzzle',
+  ARRAY['puzzle', 'numbers', 'strategy', 'brain'],
+  'Game Portal Team',
+  '2048',
+  '1.0.0',
+  true
+) ON CONFLICT (slug) DO NOTHING;
+
+-- Insert Memory Match game
+INSERT INTO games (
+  slug, title, description, thumbnail_url, category, tags, developer_name, package_name, version, featured
+) VALUES (
+  'memory-match',
+  'Memory Match',
+  'Test your memory! Flip cards to find matching pairs. Fewer moves and faster time means a higher score.',
+  '/games/memory-match/thumbnail.png',
+  'Puzzle',
+  ARRAY['memory', 'puzzle', 'cards', 'brain'],
+  'Game Portal Team',
+  'memory-match',
+  '1.0.0',
+  true
+) ON CONFLICT (slug) DO NOTHING;
+
+-- Insert Infinite Runner game
+INSERT INTO games (
+  slug, title, description, thumbnail_url, category, tags, developer_name, package_name, version, featured
+) VALUES (
+  'infinite-runner',
+  'Neon Run',
+  'Run, jump, and dodge through a neon city! Collect coins and survive as long as you can. Double jump to avoid obstacles!',
+  '/games/infinite-runner/thumbnail.png',
+  'Platformer',
+  ARRAY['runner', 'platformer', 'endless', 'action'],
+  'Game Portal Team',
+  'infinite-runner',
+  '1.0.0',
+  true
+) ON CONFLICT (slug) DO NOTHING;
+
 -- Add some sample ratings for Breakout
 INSERT INTO ratings (game_id, user_id, rating, review)
 SELECT 
