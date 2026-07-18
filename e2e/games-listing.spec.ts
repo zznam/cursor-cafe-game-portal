@@ -11,7 +11,7 @@ test.describe('Games Listing', () => {
   test('category filter buttons are visible', async ({ page }) => {
     await page.goto('/games')
 
-    const allButton = page.getByRole('link', { name: 'All' }).first()
+    const allButton = page.getByRole('button', { name: 'All', exact: true })
     await expect(allButton).toBeVisible()
 
     const categories = [
@@ -28,25 +28,55 @@ test.describe('Games Listing', () => {
     ]
     for (const category of categories) {
       await expect(
-        page.getByRole('link', { name: category, exact: true })
+        page.getByRole('button', { name: category, exact: true })
       ).toBeVisible()
     }
   })
 
-  test('clicking a category updates the URL', async ({ page }) => {
+  test('clicking a category filters cards and marks it active', async ({
+    page,
+  }) => {
     await page.goto('/games')
 
-    await page
-      .getByRole('link', { name: 'Action', exact: true })
-      .click()
-    await expect(page).toHaveURL(/category=Action/)
+    const actionButton = page.getByRole('button', { name: 'Action', exact: true })
+    const allButton = page.getByRole('button', { name: 'All', exact: true })
+
+    await actionButton.click()
+    await expect(actionButton).toHaveClass(/bg-white text-purple-600/)
+    await expect(allButton).toHaveClass(/bg-white\/10 text-white/)
+
+    const gameCards = page.locator('a[href^="/games/"]').filter({
+      has: page.locator('img'),
+    })
+    const cardCount = await gameCards.count()
+
+    if (cardCount > 0) {
+      for (let i = 0; i < cardCount; i++) {
+        await expect(
+          gameCards.nth(i).getByText('Action', { exact: true })
+        ).toBeVisible()
+      }
+    }
   })
 
-  test('clicking "All" category clears the filter', async ({ page }) => {
-    await page.goto('/games?category=Action')
+  test('clicking "All" resets filter selection', async ({ page }) => {
+    await page.goto('/games')
 
-    await page.getByRole('link', { name: 'All' }).first().click()
-    await expect(page).toHaveURL('/games')
+    const actionButton = page.getByRole('button', { name: 'Action', exact: true })
+    const allButton = page.getByRole('button', { name: 'All', exact: true })
+    const gameCards = page.locator('a[href^="/games/"]').filter({
+      has: page.locator('img'),
+    })
+
+    await actionButton.click()
+    const actionFilteredCount = await gameCards.count()
+
+    await allButton.click()
+    await expect(allButton).toHaveClass(/bg-white text-purple-600/)
+    await expect(actionButton).toHaveClass(/bg-white\/10 text-white/)
+
+    const allGamesCount = await gameCards.count()
+    expect(allGamesCount).toBeGreaterThanOrEqual(actionFilteredCount)
   })
 
   test('game cards are displayed when data is available', async ({ page }) => {

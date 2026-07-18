@@ -1,56 +1,109 @@
-import { getGames } from '@/lib/api'
-import { GameCard } from '@/components/game-card'
-import { RecentlyPlayed } from '@/components/recently-played'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Sparkles, TrendingUp, Star } from 'lucide-react'
-import Link from 'next/link'
-import { GAME_CATEGORIES } from '@/types/game'
+import {getGames} from "@/lib/api";
+import {GameCard} from "@/components/game-card";
+import {RecentlyPlayed} from "@/components/recently-played";
+import {Button} from "@/components/ui/button";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {
+  Sparkles,
+  TrendingUp,
+  Star,
+  Coffee,
+  Gamepad2,
+  Trophy,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import {GAME_CATEGORIES} from "@/types/game";
 
-export const revalidate = 60
+export const revalidate = 60;
 
 export default async function HomePage() {
-  let featuredGames: Awaited<ReturnType<typeof getGames>> = []
-  let popularGames: Awaited<ReturnType<typeof getGames>> = []
+  let featuredGames: Awaited<ReturnType<typeof getGames>> = [];
+  let popularGames: Awaited<ReturnType<typeof getGames>> = [];
 
   try {
-    ;[featuredGames, popularGames] = await Promise.all([
-      getGames({ featured: true, limit: 6 }),
-      getGames({ limit: 8 }),
-    ])
+    [featuredGames, popularGames] = await Promise.all([
+      getGames({featured: true, limit: 6}),
+      getGames({limit: 8}),
+    ]);
   } catch (error) {
-    console.error('Failed to load games:', error)
+    console.error("Failed to load games:", error);
   }
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <section className="text-center mb-16">
-        <div className="inline-block mb-4 animate-pulse">
-          <Sparkles className="w-16 h-16 text-yellow-300" />
+      <section className="text-center mb-16 relative">
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-amber-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-pink-500/10 rounded-full blur-3xl" />
         </div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-linear-to-r from-purple-300 via-pink-300 to-yellow-300 bg-clip-text text-transparent">
-          Welcome to Game Portal
+
+        <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+          <Coffee className="w-4 h-4 text-amber-400" />
+          <span className="text-sm text-white/70 font-medium">
+            Welcome to the Café
+          </span>
+          <Sparkles className="w-4 h-4 text-yellow-300" />
+        </div>
+
+        <h1 className="text-5xl md:text-7xl font-extrabold mb-6 bg-linear-to-r from-amber-200 via-purple-300 to-pink-300 bg-clip-text text-transparent leading-tight">
+          Your Cozy Corner for
+          <br />
+          Amazing Games
         </h1>
-        <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-          Discover and play amazing Phaser games created by talented developers
-          from around the world
+        <p className="text-lg md:text-xl text-white/70 mb-8 max-w-2xl mx-auto leading-relaxed">
+          Grab a virtual coffee and dive into 27+ handcrafted browser games.
+          Compete on leaderboards, rate your favorites, and discover something
+          new every day.
         </p>
-        <div className="flex flex-wrap gap-4 justify-center">
+
+        <div className="flex flex-wrap gap-4 justify-center mb-10">
           <Link href="/games">
-            <Button size="lg" className="gap-2">
-              <Sparkles className="w-5 h-5" />
-              Browse All Games
+            <Button
+              size="lg"
+              className="gap-2 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-500/25 transition-all hover:shadow-purple-500/40 hover:scale-105"
+            >
+              <Gamepad2 className="w-5 h-5" />
+              Play Now
             </Button>
           </Link>
           <Link href="/contribute">
             <Button
               size="lg"
               variant="outline"
-              className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+              className="bg-white/5 text-white border-white/20 hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105"
             >
               Contribute a Game
             </Button>
           </Link>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
+          <div className="flex items-center gap-2 text-white/60">
+            <Gamepad2 className="w-5 h-5 text-purple-400" />
+            <span className="text-sm font-medium">
+              <strong className="text-white">27+</strong> Games
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-white/60">
+            <Trophy className="w-5 h-5 text-amber-400" />
+            <span className="text-sm font-medium">
+              <strong className="text-white">Live</strong> Leaderboards
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-white/60">
+            <Star className="w-5 h-5 text-yellow-400" />
+            <span className="text-sm font-medium">
+              <strong className="text-white">5-Star</strong> Ratings
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-white/60">
+            <Users className="w-5 h-5 text-pink-400" />
+            <span className="text-sm font-medium">
+              <strong className="text-white">Open</strong> Community
+            </span>
+          </div>
         </div>
       </section>
 
@@ -105,5 +158,5 @@ export default async function HomePage() {
         </Tabs>
       </section>
     </div>
-  )
+  );
 }

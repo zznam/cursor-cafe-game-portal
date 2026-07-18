@@ -151,6 +151,7 @@ npm run dev
 ```
 
 Navigate to your game and test thoroughly:
+
 - All features work correctly
 - No console errors
 - Responsive on different screen sizes
@@ -261,15 +262,15 @@ Have an idea? Open an issue with:
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
-## 🙏 Thank You!
+## 🙏 Thank You
 
 Every contribution makes Game Portal better for everyone. Thank you for being part of our community!
 
 ## 📧 Questions?
 
 - Open a GitHub issue
-- Join our Discord (coming soon)
-- Email: support@gameportal.example
+- Join the discussion on [GitHub Discussions](https://github.com/zznam/cursor-cafe-game-portal/discussions)
+- Email: <support@gameportal.example>
 
 ---
 

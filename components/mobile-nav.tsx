@@ -1,18 +1,27 @@
-'use client'
+"use client";
 
-import {useState} from 'react'
-import Link from 'next/link'
-import {Menu, X, Home, Gamepad2, Upload} from 'lucide-react'
+import {useState} from "react";
+import Link from "next/link";
+import {
+  Menu,
+  X,
+  Home,
+  Gamepad2,
+  Upload,
+  Info,
+  HelpCircle,
+  Mail,
+} from "lucide-react";
 
 export function MobileNav() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   return (
     <>
       <button
         onClick={() => setOpen(!open)}
         className="p-2 text-white/80 hover:text-white transition-colors"
-        aria-label={open ? 'Close menu' : 'Open menu'}
+        aria-label={open ? "Close menu" : "Open menu"}
       >
         {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
@@ -49,10 +58,35 @@ export function MobileNav() {
                 <Upload className="w-5 h-5" />
                 <span className="font-medium">Contribute</span>
               </Link>
+              <div className="border-t border-white/10 my-2" />
+              <Link
+                href="/about"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <Info className="w-5 h-5" />
+                <span className="font-medium">About</span>
+              </Link>
+              <Link
+                href="/faq"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <HelpCircle className="w-5 h-5" />
+                <span className="font-medium">FAQ</span>
+              </Link>
+              <Link
+                href="/contact"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <Mail className="w-5 h-5" />
+                <span className="font-medium">Contact</span>
+              </Link>
             </nav>
           </div>
         </>
       )}
     </>
-  )
+  );
 }

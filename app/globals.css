@@ -70,7 +70,8 @@ body {
 }
 
 .game-portal-bg {
-  background: linear-gradient(135deg, #1a1035 0%, #2d1b69 30%, #1e0a3c 60%, #0f0520 100%);
+  background: linear-gradient(135deg, #0f0a1a 0%, #1a0d35 25%, #261250 50%, #1a0d35 75%, #0f0a1a 100%);
+  background-attachment: fixed;
 }
 
 ::-webkit-scrollbar {
@@ -127,6 +128,24 @@ body {
   }
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
 }
@@ -138,3 +157,20 @@ body {
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(139, 92, 246, 0.4);
+  color: white;
+}
+
