@@ -39,9 +39,9 @@ class PlatformJumperScene extends Phaser.Scene {
     pb.setCollideWorldBounds(false)
     pb.setBounceY(0)
 
-    this.physics.add.collider(this.player, this.platforms, this.onLand as any, (_p, plat) => {
+    this.physics.add.collider(this.player, this.platforms, this.onLand as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, (_p, plat) => {
       const playerBody = this.player?.body as Phaser.Physics.Arcade.Body
-      return playerBody.velocity.y > 0 && playerBody.y + playerBody.height - 10 < (plat as any).y
+      return playerBody.velocity.y > 0 && playerBody.y + playerBody.height - 10 < (plat as Phaser.GameObjects.Sprite).y
     }, this)
 
     this.scoreText = this.add.text(16, 16, 'Score: 0', {

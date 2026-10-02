@@ -30,9 +30,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
+    command: process.env.E2E_MOCK_DATABASE === 'true' ? 'node scripts/e2e-server.mjs' : 'npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env.CI && process.env.E2E_MOCK_DATABASE !== 'true',
     timeout: 120000,
   },
 })

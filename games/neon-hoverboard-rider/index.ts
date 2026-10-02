@@ -51,8 +51,8 @@ class NeonHoverboardScene extends Phaser.Scene {
       loop: true,
     })
 
-    this.physics.add.overlap(this.player, this.gaps, this.hitGap as any, undefined, this)
-    this.physics.add.overlap(this.player, this.rails, this.grindRail as any, undefined, this)
+    this.physics.add.overlap(this.player, this.gaps, this.hitGap as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
+    this.physics.add.overlap(this.player, this.rails, this.grindRail as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
 
     this.input.on('pointerdown', () => this.jump())
     this.input.keyboard?.on('keydown-SPACE', () => this.jump())
@@ -111,7 +111,7 @@ class NeonHoverboardScene extends Phaser.Scene {
     this.speed = Math.min(this.speed + 3, 500)
   }
 
-  grindRail(_player: any, rail: any) {
+  grindRail() {
     this.score += 5
     this.scoreText?.setText(`Score: ${this.score}`)
   }
@@ -131,8 +131,8 @@ class NeonHoverboardScene extends Phaser.Scene {
       l.x -= (l.getData('speed') as number) * 0.016
       if (l.x < -10) { l.x = 810; l.y = Phaser.Math.Between(0, 600) }
     }
-    this.rails?.children.entries.forEach(r => { if ((r as any).x < -150) r.destroy() })
-    this.gaps?.children.entries.forEach(g => { if ((g as any).x < -80) g.destroy() })
+    this.rails?.children.entries.forEach(r => { if ((r as Phaser.GameObjects.Sprite).x < -150) r.destroy() })
+    this.gaps?.children.entries.forEach(g => { if ((g as Phaser.GameObjects.Sprite).x < -80) g.destroy() })
   }
 }
 

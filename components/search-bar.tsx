@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useId } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, X, Gamepad2, Sword, Puzzle, Rocket, Car, Trophy, Target, MapPin, Zap } from 'lucide-react'
 import { GameMetadata } from '@/types/game'
-import { getGames } from '@/lib/api'
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Action: <Sword className="w-4 h-4" />,
@@ -22,7 +21,8 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 export function SearchBar() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<GameMetadata[]>([])
-  const [allGames, setAllGames] = useState<GameMetadata[]>([])
+  const [error, setError] = useState(false)
+  const listId = useId()
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
@@ -31,38 +31,21 @@ export function SearchBar() {
   const router = useRouter()
 
   useEffect(() => {
-    let mounted = true
-    async function fetchGames() {
+    if (!query.trim()) return
+    const controller = new AbortController()
+    const timer = setTimeout(async () => {
       setLoading(true)
       try {
-        const games = await getGames({ limit: 100 })
-        if (mounted) setAllGames(games)
-      } catch {
-        // games list unavailable — search will show no results
-      } finally {
-        if (mounted) setLoading(false)
-      }
-    }
-    fetchGames()
-    return () => { mounted = false }
-  }, [])
-
-  const filterGames = useCallback((q: string) => {
-    if (!q.trim()) return []
-    const lower = q.toLowerCase()
-    return allGames.filter(
-      (game) =>
-        game.title.toLowerCase().includes(lower) ||
-        game.description.toLowerCase().includes(lower) ||
-        game.tags.some((tag) => tag.toLowerCase().includes(lower)) ||
-        game.category.toLowerCase().includes(lower)
-    ).slice(0, 8)
-  }, [allGames])
-
-  useEffect(() => {
-    setResults(filterGames(query))
-    setSelectedIndex(-1)
-  }, [query, filterGames])
+        const search = query.replace(/[^\p{L}\p{N}\s-]/gu, '').slice(0, 80)
+        const response = await fetch(`/api/games?limit=8&search=${encodeURIComponent(search)}`, { signal: controller.signal })
+        if (!response.ok) throw new Error('Search unavailable')
+        const data: GameMetadata[] = await response.json()
+        if (!controller.signal.aborted) { setResults(data); setError(false) }
+      } catch { if (!controller.signal.aborted) setError(true) }
+      finally { if (!controller.signal.aborted) setLoading(false) }
+    }, 250)
+    return () => { clearTimeout(timer); controller.abort() }
+  }, [query])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -81,6 +64,7 @@ export function SearchBar() {
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Escape') { setIsOpen(false); inputRef.current?.blur(); return }
     if (!isOpen || results.length === 0) return
 
     if (e.key === 'ArrowDown') {
@@ -105,10 +89,20 @@ export function SearchBar() {
         <input
           ref={inputRef}
           type="text"
+          role="combobox"
+          aria-label="Search games"
+          aria-expanded={isOpen && !!query.trim()}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={selectedIndex >= 0 ? `${listId}-${selectedIndex}` : undefined}
           placeholder="Search games..."
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)
+            setSelectedIndex(-1)
+            setResults([])
+            setError(false)
+            setLoading(!!e.target.value.trim())
             setIsOpen(true)
           }}
           onFocus={() => setIsOpen(true)}
@@ -117,6 +111,7 @@ export function SearchBar() {
         />
         {query && (
           <button
+            aria-label="Clear search"
             onClick={() => {
               setQuery('')
               inputRef.current?.focus()
@@ -134,15 +129,18 @@ export function SearchBar() {
             <div className="px-4 py-6 text-center text-sm text-white/50">
               Loading games...
             </div>
-          ) : results.length === 0 ? (
+          ) : error ? (<p role="alert" className="px-4 py-6 text-sm text-red-300">Search is unavailable. Please try again.</p>) : results.length === 0 ? (
             <div className="px-4 py-6 text-center text-sm text-white/50">
               No games found for &ldquo;{query}&rdquo;
             </div>
           ) : (
-            <div className="py-1">
+            <div className="py-1" role="listbox" id={listId}>
               {results.map((game, index) => (
                 <button
                   key={game.id}
+                  id={`${listId}-${index}`}
+                  role="option"
+                  aria-selected={index === selectedIndex}
                   onClick={() => navigateToGame(game.slug)}
                   onMouseEnter={() => setSelectedIndex(index)}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${

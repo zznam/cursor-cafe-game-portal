@@ -4,7 +4,7 @@ test.describe('Game Detail Page', () => {
   test('game detail page loads for /games/breakout', async ({ page }) => {
     const response = await page.goto('/games/breakout')
     const status = response?.status() ?? 0
-    expect(status === 200 || status === 404).toBeTruthy()
+    expect(status).toBe(200)
 
     if (status === 200) {
       await expect(page.getByRole('heading').first()).toBeVisible({
@@ -16,7 +16,7 @@ test.describe('Game Detail Page', () => {
   test('game detail page loads for /games/space-shooter', async ({ page }) => {
     const response = await page.goto('/games/space-shooter')
     const status = response?.status() ?? 0
-    expect(status === 200 || status === 404).toBeTruthy()
+    expect(status).toBe(200)
 
     if (status === 200) {
       await expect(page.getByRole('heading').first()).toBeVisible({
@@ -27,14 +27,11 @@ test.describe('Game Detail Page', () => {
 
   test('game title and description are visible', async ({ page }) => {
     const response = await page.goto('/games/breakout')
-    if (response?.status() !== 200) {
-      test.skip(true, 'Game not found in database')
-      return
-    }
+    expect(response?.status()).toBe(200)
 
-    await expect(
-      page.getByRole('heading', { level: 1 })
-    ).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({
+      timeout: 10000,
+    })
 
     const description = page.locator('p.text-white\\/85')
     await expect(description).toBeVisible({ timeout: 10000 })
@@ -44,10 +41,7 @@ test.describe('Game Detail Page', () => {
     page,
   }) => {
     const response = await page.goto('/games/breakout')
-    if (response?.status() !== 200) {
-      test.skip(true, 'Game not found in database')
-      return
-    }
+    expect(response?.status()).toBe(200)
 
     const ratingOrNew = page.getByText(/\d\.\d|New/).first()
     await expect(ratingOrNew).toBeVisible({ timeout: 10000 })
@@ -62,20 +56,14 @@ test.describe('Game Detail Page', () => {
 
   test('leaderboard section is visible', async ({ page }) => {
     const response = await page.goto('/games/breakout')
-    if (response?.status() !== 200) {
-      test.skip(true, 'Game not found in database')
-      return
-    }
+    expect(response?.status()).toBe(200)
 
     await expect(page.getByText('Leaderboard')).toBeVisible({ timeout: 10000 })
   })
 
   test('rating system is visible with 5 stars', async ({ page }) => {
     const response = await page.goto('/games/breakout')
-    if (response?.status() !== 200) {
-      test.skip(true, 'Game not found in database')
-      return
-    }
+    expect(response?.status()).toBe(200)
 
     await expect(page.getByText('Rate this game')).toBeVisible({
       timeout: 10000,
@@ -89,12 +77,11 @@ test.describe('Game Detail Page', () => {
 
   test('comments section is visible with input fields', async ({ page }) => {
     const response = await page.goto('/games/breakout')
-    if (response?.status() !== 200) {
-      test.skip(true, 'Game not found in database')
-      return
-    }
+    expect(response?.status()).toBe(200)
 
-    await expect(page.getByText('Comments')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { name: /^Comments/ })).toBeVisible({
+      timeout: 10000,
+    })
 
     await expect(page.getByPlaceholder('Your name')).toBeVisible({
       timeout: 10000,
@@ -104,10 +91,7 @@ test.describe('Game Detail Page', () => {
 
   test('"Back to Games" link works', async ({ page }) => {
     const response = await page.goto('/games/breakout')
-    if (response?.status() !== 200) {
-      test.skip(true, 'Game not found in database')
-      return
-    }
+    expect(response?.status()).toBe(200)
 
     const backLink = page.getByRole('link', { name: /Back to Games/i })
     await expect(backLink).toBeVisible()
@@ -117,10 +101,7 @@ test.describe('Game Detail Page', () => {
 
   test('share button is visible', async ({ page }) => {
     const response = await page.goto('/games/breakout')
-    if (response?.status() !== 200) {
-      test.skip(true, 'Game not found in database')
-      return
-    }
+    expect(response?.status()).toBe(200)
 
     await expect(page.getByText(/Share on X/i)).toBeVisible({ timeout: 10000 })
   })

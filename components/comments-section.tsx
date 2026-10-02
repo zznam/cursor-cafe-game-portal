@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { MessageSquare, Send, User } from 'lucide-react'
 import { getComments, submitComment } from '@/lib/api'
@@ -17,32 +17,32 @@ export function CommentsSection({ gameId }: CommentsSectionProps) {
   const [username, setUsername] = useState('')
   const [content, setContent] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-  useEffect(() => {
-    loadComments()
-  }, [gameId])
-
-  async function loadComments() {
+  const loadComments = useCallback(async () => {
     try {
       const data = await getComments(gameId)
       setComments(data)
     } catch (error) {
-      console.error('Failed to load comments:', error)
+      setErrorMessage(error instanceof Error ? error.message : 'Comments are unavailable')
     } finally {
       setLoading(false)
     }
-  }
+  }, [gameId])
+
+  useEffect(() => { void loadComments() }, [loadComments])
 
   const handleSubmit = async () => {
     if (!username.trim() || !content.trim()) return
 
     setSubmitting(true)
+    setErrorMessage('')
     try {
       await submitComment(gameId, content, username)
       setContent('')
       await loadComments()
     } catch (error) {
-      console.error('Failed to submit comment:', error)
+      setErrorMessage(error instanceof Error ? error.message : 'Could not post comment')
     } finally {
       setSubmitting(false)
     }
@@ -63,16 +63,23 @@ export function CommentsSection({ gameId }: CommentsSectionProps) {
       </div>
 
       <div className="p-6">
+        {errorMessage && <p role="alert" className="mb-4 text-red-300">{errorMessage}</p>}
         <div className="space-y-3 mb-6">
           <input
             type="text"
+            aria-label="Your name"
+            maxLength={30}
             placeholder="Your name"
+            disabled={submitting}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full h-10 rounded-lg bg-white/5 border border-white/10 px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500/50 transition-colors"
           />
           <textarea
+            aria-label="Write a comment"
+            maxLength={2000}
             placeholder="Write a comment..."
+            disabled={submitting}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={3}

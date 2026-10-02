@@ -1,3 +1,5 @@
+
+import type { Json } from '@/types/database'
 import * as Phaser from 'phaser'
 
 export interface GameMetadata {
@@ -39,7 +41,7 @@ export interface LeaderboardEntry {
   userId: string
   username: string
   score: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, Json>
   createdAt: string
 }
 
@@ -68,7 +70,7 @@ export interface AnalyticsEvent {
   eventType: 'play' | 'complete' | 'quit' | 'score_submit'
   userId?: string
   sessionId: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, Json>
 }
 
 export const GAME_CATEGORIES = [

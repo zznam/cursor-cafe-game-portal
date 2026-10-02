@@ -1,4 +1,5 @@
-import { getGameBySlug } from '@/lib/api'
+import { siteUrl } from '@/lib/server/config'
+import { getGameBySlug } from '@/lib/server/catalog'
 import { GamePlayer } from '@/components/game-player'
 import { Leaderboard } from '@/components/leaderboard'
 import { RatingSystem } from '@/components/rating-system'
@@ -6,12 +7,12 @@ import { CommentsSection } from '@/components/comments-section'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { GAME_CONTROLS } from '@/lib/game-controls'
-import { ArrowLeft, Share2, Link2, Star, Play, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Share2, Star, Play, ExternalLink } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export default async function GamePage({
   params,
@@ -29,7 +30,7 @@ export default async function GamePage({
   const controlsTitle = controlsData?.title ?? game.title
   const controlsList = controlsData?.controls ?? []
 
-  const shareUrl = `https://game-portal.example.com/games/${game.slug}`
+  const shareUrl = `${siteUrl()}/games/${game.slug}`
   const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out ${game.title} on Game Portal!`)}&url=${encodeURIComponent(shareUrl)}`
 
   return (

@@ -1,0 +1,5 @@
+bucket = "YOUR_BOOTSTRAP_OUTPUT_STATE_BUCKET"
+key = "production/terraform.tfstate"
+region = "ap-southeast-1"
+encrypt = true
+use_lockfile = true

@@ -3,9 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Social Features', () => {
   test.beforeEach(async ({ page }) => {
     const response = await page.goto('/games/breakout')
-    if (response?.status() !== 200) {
-      test.skip(true, 'Game not found in database')
-    }
+    expect(response?.status()).toBe(200)
   })
 
   test('can fill in comment form fields', async ({ page }) => {
@@ -73,7 +71,7 @@ test.describe('Social Features', () => {
       .filter({ has: page.locator('svg.lucide-star') })
 
     await starButtons.nth(4).click()
-    await expect(page.getByText('Amazing')).toBeVisible()
+    await expect(page.getByText('Amazing', { exact: true })).toBeVisible()
 
     const submitButton = page.getByRole('button', { name: /Submit Rating/i })
     await expect(submitButton).toBeEnabled()

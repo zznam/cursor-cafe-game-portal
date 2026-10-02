@@ -35,8 +35,8 @@ class GravityFlipScene extends Phaser.Scene {
     pb.setBounceY(0)
 
     this.physics.add.collider(this.player, this.platforms)
-    this.physics.add.overlap(this.player, this.spikes, this.hitSpike as any, undefined, this)
-    this.physics.add.overlap(this.player, this.coins, this.collectCoin as any, undefined, this)
+    this.physics.add.overlap(this.player, this.spikes, this.hitSpike as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
+    this.physics.add.overlap(this.player, this.coins, this.collectCoin as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
 
     this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '22px', color: '#0ff', fontFamily: 'monospace' })
 
@@ -113,7 +113,7 @@ class GravityFlipScene extends Phaser.Scene {
     }
   }
 
-  collectCoin(_player: any, coin: any) {
+  collectCoin(_player: Phaser.GameObjects.GameObject, coin: Phaser.GameObjects.GameObject) {
     coin.destroy()
     this.score += 10
     this.scoreText?.setText(`Score: ${this.score}`)

@@ -51,8 +51,8 @@ class NeonPongScene extends Phaser.Scene {
       fontSize: '36px', color: '#fff', fontFamily: 'monospace',
     }).setOrigin(0.5)
 
-    this.physics.add.collider(this.ball, this.paddleLeft, this.hitPaddle as any, undefined, this)
-    this.physics.add.collider(this.ball, this.paddleRight, this.hitPaddle as any, undefined, this)
+    this.physics.add.collider(this.ball, this.paddleLeft, this.hitPaddle as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
+    this.physics.add.collider(this.ball, this.paddleRight, this.hitPaddle as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
 
     this.physics.world.on('worldbounds', (_body: Phaser.Physics.Arcade.Body, _up: boolean, _down: boolean, left: boolean, right: boolean) => {
       if (left) { this.scoreRight++; this.resetBall(-1) }
@@ -82,11 +82,12 @@ class NeonPongScene extends Phaser.Scene {
     this.ball?.setVelocity(250 * dir, Phaser.Math.Between(-150, 150))
   }
 
-  hitPaddle(ball: any, paddle: any) {
+  hitPaddle(ball: Phaser.Physics.Arcade.Image, paddle: Phaser.GameObjects.Rectangle) {
     const diff = ball.y - paddle.y
-    ball.body.setVelocityY(diff * 5)
-    const vx = ball.body.velocity.x
-    ball.body.setVelocityX(vx > 0 ? Math.min(vx + 20, 500) : Math.max(vx - 20, -500))
+    const body = ball.body as Phaser.Physics.Arcade.Body
+    body.setVelocityY(diff * 5)
+    const vx = body.velocity.x
+    body.setVelocityX(vx > 0 ? Math.min(vx + 20, 500) : Math.max(vx - 20, -500))
   }
 
   endGame() {

@@ -128,7 +128,7 @@ class PenaltyShootoutScene extends Phaser.Scene {
       )
 
     // keeper dives
-    this.tweens.killTweensOf(this.keeper)
+    if (this.keeper) this.tweens.killTweensOf(this.keeper)
     const diveDir = Math.random() > 0.5 ? 1 : -1
     this.tweens.add({
       targets: this.keeper,

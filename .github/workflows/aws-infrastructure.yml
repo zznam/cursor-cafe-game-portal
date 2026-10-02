@@ -1,0 +1,57 @@
+name: Custom AWS infrastructure
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        options: [plan, apply]
+        default: plan
+        required: true
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: production-changes
+  cancel-in-progress: false
+jobs:
+  terraform:
+    if: github.ref == 'refs/heads/main'
+    environment: aws-infrastructure-production
+    runs-on: ubuntu-latest
+    env:
+      TF_IN_AUTOMATION: 'true'
+      TF_VAR_project: ${{ vars.AWS_PROJECT }}
+      TF_VAR_primary_region: ${{ vars.AWS_PRIMARY_REGION }}
+      TF_VAR_secondary_region: ${{ vars.AWS_SECONDARY_REGION }}
+      TF_VAR_zone_id: ${{ vars.AWS_ZONE_ID }}
+      TF_VAR_hostname: ${{ vars.APP_HOSTNAME }}
+      TF_VAR_supabase_url: ${{ vars.SUPABASE_URL }}
+      TF_VAR_primary_read_url: ${{ vars.SUPABASE_PRIMARY_READ_URL }}
+      TF_VAR_secondary_read_url: ${{ vars.SUPABASE_SECONDARY_READ_URL }}
+      TF_VAR_launch_enabled: ${{ vars.LAUNCH_ENABLED || 'false' }}
+      TF_VAR_alarm_email: ${{ vars.ALARM_EMAIL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_TERRAFORM_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_PRIMARY_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.14.7'
+      - name: Initialize encrypted, locked state
+        env:
+          STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          STATE_REGION: ${{ vars.AWS_PRIMARY_REGION }}
+        run: terraform -chdir=infra/aws init -backend-config="bucket=$STATE_BUCKET" -backend-config="key=production/terraform.tfstate" -backend-config="region=$STATE_REGION" -backend-config=encrypt=true -backend-config=use_lockfile=true
+      - run: terraform -chdir=infra/aws plan -out=production.tfplan
+      - if: inputs.action == 'apply'
+        run: terraform -chdir=infra/aws apply production.tfplan
+      - if: inputs.action == 'apply'
+        run: terraform -chdir=infra/aws output -json > infrastructure-outputs.json
+      - uses: actions/upload-artifact@v4
+        if: inputs.action == 'apply'
+        with:
+          name: infrastructure-outputs
+          path: infrastructure-outputs.json
+          retention-days: 7

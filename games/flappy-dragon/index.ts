@@ -38,7 +38,7 @@ class FlappyDragonScene extends Phaser.Scene {
       loop: true,
     })
 
-    this.physics.add.overlap(this.dragon, this.pipes, this.hitPipe as any, undefined, this)
+    this.physics.add.overlap(this.dragon, this.pipes, this.hitPipe as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
 
     this.input.on('pointerdown', () => {
       if (this.gameOver) return

@@ -43,3 +43,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Infrastructure state, plans, credentials, and local release files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+!*.tfvars.example
+infra/aws/backend.hcl
+infra/aws/bootstrap/backend.hcl
+runtime-secrets.json

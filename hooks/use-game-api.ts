@@ -1,5 +1,7 @@
 'use client'
 
+import type { Json } from '@/types/database'
+
 import { useState, useCallback } from 'react'
 import { submitScore as apiSubmitScore } from '@/lib/api'
 import { Analytics } from '@/lib/analytics'
@@ -11,7 +13,7 @@ export function useGameApi(gameId: string) {
   const submitScore = useCallback(async (
     score: number,
     username: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, Json>
   ) => {
     setSubmitting(true)
     setError(null)
@@ -29,11 +31,11 @@ export function useGameApi(gameId: string) {
     }
   }, [gameId])
 
-  const trackGameComplete = useCallback(async (metadata?: Record<string, any>) => {
+  const trackGameComplete = useCallback(async (metadata?: Record<string, Json>) => {
     await Analytics.trackComplete(gameId, metadata)
   }, [gameId])
 
-  const trackGameQuit = useCallback(async (metadata?: Record<string, any>) => {
+  const trackGameQuit = useCallback(async (metadata?: Record<string, Json>) => {
     await Analytics.trackQuit(gameId, metadata)
   }, [gameId])
 

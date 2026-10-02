@@ -1,3 +1,5 @@
+> Historical setup notes. For current server credentials, schema migrations, and the default Vercel deployment, follow [DEPLOYMENT.md](DEPLOYMENT.md). AWS is an optional custom deployment.
+
 # Next Steps - Getting Your Game Portal Live
 
 Congratulations! Your Game Portal is built and ready. Here's what to do next:

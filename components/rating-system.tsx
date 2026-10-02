@@ -16,18 +16,20 @@ export function RatingSystem({ gameId, currentRating = 0, onRatingSubmit }: Rati
   const [review, setReview] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleSubmit = async () => {
     if (rating === 0) return
 
     setSubmitting(true)
+    setErrorMessage('')
     try {
       await submitRating(gameId, rating, review || undefined)
       setSubmitted(true)
       onRatingSubmit?.()
       setTimeout(() => setSubmitted(false), 3000)
     } catch (error) {
-      console.error('Failed to submit rating:', error)
+      setErrorMessage(error instanceof Error ? error.message : 'Could not submit rating')
     } finally {
       setSubmitting(false)
     }
@@ -46,6 +48,8 @@ export function RatingSystem({ gameId, currentRating = 0, onRatingSubmit }: Rati
           {[1, 2, 3, 4, 5].map((value) => (
             <button
               key={value}
+              aria-label={`Rate ${value} ${value === 1 ? "star" : "stars"}`}
+              aria-pressed={rating === value}
               onClick={() => setRating(value)}
               onMouseEnter={() => setHoveredRating(value)}
               onMouseLeave={() => setHoveredRating(0)}
@@ -76,6 +80,8 @@ export function RatingSystem({ gameId, currentRating = 0, onRatingSubmit }: Rati
         </div>
 
         <textarea
+          aria-label="Review (optional)"
+          maxLength={2000}
           placeholder="Write a review (optional)"
           value={review}
           onChange={(e) => setReview(e.target.value)}
@@ -91,6 +97,7 @@ export function RatingSystem({ gameId, currentRating = 0, onRatingSubmit }: Rati
           {submitting ? 'Submitting...' : 'Submit Rating'}
         </button>
 
+        {errorMessage && <p role="alert" className="text-red-300">{errorMessage}</p>}
         {submitted && (
           <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-green-500/10 border border-green-500/20 animate-fade-in">
             <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />

@@ -43,6 +43,7 @@ function RankBadge({ rank }: { rank: number }) {
 export function Leaderboard({ gameId }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     async function loadLeaderboard() {
@@ -50,7 +51,7 @@ export function Leaderboard({ gameId }: LeaderboardProps) {
         const data = await getLeaderboard(gameId, 10)
         setEntries(data)
       } catch (error) {
-        console.error('Failed to load leaderboard:', error)
+        setErrorMessage(error instanceof Error ? error.message : 'Leaderboard is unavailable')
       } finally {
         setLoading(false)
       }
@@ -69,7 +70,9 @@ export function Leaderboard({ gameId }: LeaderboardProps) {
       </div>
 
       <div className="p-6">
-        {loading ? (
+        {errorMessage ? (
+          <p role="alert" className="py-8 text-sm text-red-300">{errorMessage}</p>
+        ) : loading ? (
           <div className="flex items-center justify-center py-8">
             <div className="w-6 h-6 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
           </div>

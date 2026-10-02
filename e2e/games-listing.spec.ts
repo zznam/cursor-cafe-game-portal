@@ -4,7 +4,7 @@ test.describe('Games Listing', () => {
   test('games page loads with heading', async ({ page }) => {
     await page.goto('/games')
     await expect(
-      page.getByRole('heading', { name: /All Games/i })
+      page.getByRole('heading', { name: /All Games/i }),
     ).toBeVisible()
   })
 
@@ -28,7 +28,7 @@ test.describe('Games Listing', () => {
     ]
     for (const category of categories) {
       await expect(
-        page.getByRole('button', { name: category, exact: true })
+        page.getByRole('button', { name: category, exact: true }),
       ).toBeVisible()
     }
   })
@@ -38,7 +38,10 @@ test.describe('Games Listing', () => {
   }) => {
     await page.goto('/games')
 
-    const actionButton = page.getByRole('button', { name: 'Action', exact: true })
+    const actionButton = page.getByRole('button', {
+      name: 'Action',
+      exact: true,
+    })
     const allButton = page.getByRole('button', { name: 'All', exact: true })
 
     await actionButton.click()
@@ -48,12 +51,14 @@ test.describe('Games Listing', () => {
     const gameCards = page.locator('a[href^="/games/"]').filter({
       has: page.locator('img'),
     })
+    await expect(page.getByRole('status')).toContainText('games ready to play')
+    await expect(gameCards.first()).toBeVisible()
     const cardCount = await gameCards.count()
 
-    if (cardCount > 0) {
+    {
       for (let i = 0; i < cardCount; i++) {
         await expect(
-          gameCards.nth(i).getByText('Action', { exact: true })
+          gameCards.nth(i).getByText('Action', { exact: true }),
         ).toBeVisible()
       }
     }
@@ -62,7 +67,10 @@ test.describe('Games Listing', () => {
   test('clicking "All" resets filter selection', async ({ page }) => {
     await page.goto('/games')
 
-    const actionButton = page.getByRole('button', { name: 'Action', exact: true })
+    const actionButton = page.getByRole('button', {
+      name: 'Action',
+      exact: true,
+    })
     const allButton = page.getByRole('button', { name: 'All', exact: true })
     const gameCards = page.locator('a[href^="/games/"]').filter({
       has: page.locator('img'),
@@ -86,12 +94,7 @@ test.describe('Games Listing', () => {
       has: page.locator('img'),
     })
 
-    const noGamesMessage = page.getByText(/No games found/i)
-
-    const hasGames = await gameCards.first().isVisible().catch(() => false)
-    const hasNoGamesMsg = await noGamesMessage.isVisible().catch(() => false)
-
-    expect(hasGames || hasNoGamesMsg).toBeTruthy()
+    await expect(gameCards.first()).toBeVisible()
   })
 
   test('game cards show title and description', async ({ page }) => {
@@ -101,8 +104,8 @@ test.describe('Games Listing', () => {
       has: page.locator('img'),
     })
 
-    const cardCount = await gameCards.count()
-    if (cardCount > 0) {
+    await expect(gameCards.first()).toBeVisible()
+    {
       const firstCard = gameCards.first()
       await expect(firstCard.locator('h3')).toBeVisible()
       await expect(firstCard.locator('p').first()).toBeVisible()
@@ -116,8 +119,8 @@ test.describe('Games Listing', () => {
       has: page.locator('img'),
     })
 
-    const cardCount = await gameCards.count()
-    if (cardCount > 0) {
+    await expect(gameCards.first()).toBeVisible()
+    {
       const firstCard = gameCards.first()
       const ratingOrNew = firstCard.getByText(/\d\.\d|New/)
       await expect(ratingOrNew).toBeVisible({ timeout: 10000 })
@@ -133,8 +136,8 @@ test.describe('Games Listing', () => {
       has: page.locator('img'),
     })
 
-    const cardCount = await gameCards.count()
-    if (cardCount > 0) {
+    await expect(gameCards.first()).toBeVisible()
+    {
       const href = await gameCards.first().getAttribute('href')
       await gameCards.first().click()
       await expect(page).toHaveURL(href!)

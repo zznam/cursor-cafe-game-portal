@@ -20,13 +20,11 @@ export function ScoreSubmitDialog({
   onSubmit,
 }: ScoreSubmitDialogProps) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const [username, setUsername] = useState('')
+  const [username, setUsername] = useState(() => { try { return typeof window === 'undefined' ? '' : localStorage.getItem(USERNAME_KEY) || '' } catch { return '' } })
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
-    const saved = localStorage.getItem(USERNAME_KEY)
-    if (saved) setUsername(saved)
     inputRef.current?.focus()
   }, [])
 
@@ -69,6 +67,7 @@ export function ScoreSubmitDialog({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="score-dialog-title"
     >
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -77,6 +76,7 @@ export function ScoreSubmitDialog({
 
       <div className="relative w-full max-w-md bg-gray-900/95 backdrop-blur-md border border-white/15 rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
         <button
+          aria-label="Close score dialog"
           onClick={onClose}
           className="absolute top-4 right-4 p-1.5 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/10"
         >
@@ -87,7 +87,7 @@ export function ScoreSubmitDialog({
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-yellow-500/20 mb-3">
             <Trophy className="w-7 h-7 text-yellow-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white">Submit Your Score</h2>
+          <h2 id="score-dialog-title" className="text-2xl font-bold text-white">Submit Your Score</h2>
         </div>
 
         <div className="text-center mb-6">
@@ -134,7 +134,8 @@ export function ScoreSubmitDialog({
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={onClose}
+                aria-label="Close score dialog"
+          onClick={onClose}
                 className="flex-1 px-4 py-2.5 rounded-lg border border-white/15 text-white/70 hover:bg-white/10 transition-colors disabled:opacity-50"
                 disabled={status === 'submitting'}
               >
