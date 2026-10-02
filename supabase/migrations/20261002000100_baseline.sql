@@ -86,7 +86,7 @@ CREATE OR REPLACE FUNCTION update_game_rating()
 RETURNS TRIGGER AS $$
 BEGIN
   UPDATE games
-  SET 
+  SET
     average_rating = (SELECT AVG(rating) FROM ratings WHERE game_id = NEW.game_id),
     total_ratings = (SELECT COUNT(*) FROM ratings WHERE game_id = NEW.game_id),
     updated_at = NOW()
@@ -148,4 +148,3 @@ CREATE POLICY "Public Read for Avatars" ON storage.objects FOR SELECT USING (buc
 -- Storage Policies for avatars (User can upload own avatar)
 CREATE POLICY "Users can upload their own avatar" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'avatars' AND auth.uid() = owner);
 CREATE POLICY "Users can update their own avatar" ON storage.objects FOR UPDATE USING (bucket_id = 'avatars' AND auth.uid() = owner);
-

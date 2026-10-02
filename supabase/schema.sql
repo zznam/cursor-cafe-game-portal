@@ -87,7 +87,7 @@ CREATE OR REPLACE FUNCTION update_game_rating()
 RETURNS TRIGGER AS $$
 BEGIN
   UPDATE games
-  SET 
+  SET
     average_rating = (SELECT AVG(rating) FROM ratings WHERE game_id = NEW.game_id),
     total_ratings = (SELECT COUNT(*) FROM ratings WHERE game_id = NEW.game_id),
     updated_at = NOW()
