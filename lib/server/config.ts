@@ -8,11 +8,14 @@ export function requiredEnv(name: string): string {
 
 export function databaseUrl(readOnly = false): string {
   const value =
-    (readOnly && process.env.SUPABASE_READ_URL) ||
-    process.env.SUPABASE_URL ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!value) throw new Error('Missing SUPABASE_URL')
-  return new URL(value).origin
+    (readOnly && process.env.DATABASE_READ_URL) || requiredEnv('DATABASE_URL')
+  const url = new URL(value)
+  if (!['postgres:', 'postgresql:'].includes(url.protocol))
+    throw new Error('DATABASE_URL must be a PostgreSQL connection string')
+  if (!['localhost', '127.0.0.1', '[::1]'].includes(url.hostname) &&
+      !['require', 'verify-ca', 'verify-full'].includes(url.searchParams.get('sslmode') || ''))
+    throw new Error('Remote database connections must require TLS')
+  return value
 }
 
 export function siteUrl(): string {

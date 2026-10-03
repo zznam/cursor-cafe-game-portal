@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+const baseURL = process.env.E2E_BASE_URL || 'http://localhost:3000'
 test('catalog validates pagination before hitting the database', async ({
   request,
 }) => {
@@ -24,7 +25,7 @@ test('score API accepts zero and rejects forged identity, invalid JSON, oversize
 }) => {
   const games = await (await request.get('/api/games?limit=1')).json()
   const path = `/api/leaderboard/${games[0].id}`
-  const headers = { Origin: 'http://localhost:3000' }
+  const headers = { Origin: baseURL }
   const accepted = await request.post(path, {
     headers,
     data: { score: 0, username: 'API Test' },
@@ -105,7 +106,7 @@ test('a signed guest can update only its own rating while another guest gets a s
   request,
 }) => {
   const [game] = await (await request.get('/api/games?limit=1')).json()
-  const headers = { Origin: 'http://localhost:3000' }
+  const headers = { Origin: baseURL }
   const review = `Updated-${test.info().project.name}-${Date.now()}`
   expect(
     (
@@ -124,7 +125,7 @@ test('a signed guest can update only its own rating while another guest gets a s
     ).status(),
   ).toBe(200)
   const another = await playwright.request.newContext({
-    baseURL: 'http://localhost:3000',
+    baseURL,
   })
   try {
     expect(
@@ -223,7 +224,7 @@ test('invalid social inputs and game IDs never become database errors', async ({
     expect(
       (
         await request.post(path, {
-          headers: { Origin: 'http://localhost:3000' },
+          headers: { Origin: baseURL },
           data,
         })
       ).status(),
@@ -232,7 +233,7 @@ test('invalid social inputs and game IDs never become database errors', async ({
     (
       await request.post(`/api/ratings/${game.id}`, {
         headers: {
-          Origin: 'http://localhost:3000',
+          Origin: baseURL,
           'Content-Type': 'text/plain',
         },
         data: 'x',
@@ -250,26 +251,34 @@ test('production pages include security headers and no service credentials', asy
   expect(response.headers()['x-content-type-options']).toBe('nosniff')
   expect(response.headers()['x-frame-options']).toBe('DENY')
   expect(response.headers()['x-powered-by']).toBeUndefined()
-  expect(await response.text()).not.toContain('test-service-key')
+  expect(await response.text()).not.toContain('postgresql://')
 })
 
 test('database outages return retryable errors rather than empty results or 404s', async ({
   request,
   page,
 }) => {
-  const response = await request.get('/api/games?search=database-unavailable')
-  expect(response.status()).toBe(503)
-  const body = await response.json()
-  expect(body.error).toContain('temporarily unavailable')
-  expect(body.requestId).toBeTruthy()
-  expect(JSON.stringify(body)).not.toContain('Simulated database outage')
-  await page.goto('/games/database-unavailable')
-  await expect(
-    page.getByRole('heading', { name: 'The café is taking a quick break' }),
-  ).toBeVisible()
-  await expect(
-    page.getByRole('button', { name: 'Try again', exact: true }),
-  ).toBeVisible()
+  test.skip(process.env.E2E_MOCK_DATABASE !== 'true', 'Outage controls require the local SQL fixture')
+  await request.get('http://127.0.0.1:54330/stop')
+  try {
+    const response = await request.get('/api/games?limit=1')
+    expect(response.status()).toBe(503)
+    const body = await response.json()
+    expect(body.error).toContain('temporarily unavailable')
+    expect(body.requestId).toBeTruthy()
+    expect(JSON.stringify(body)).not.toContain('ECONNREFUSED')
+    await page.goto('/games/breakout')
+    await expect(
+      page.getByRole('heading', { name: 'The café is taking a quick break' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Try again', exact: true }),
+    ).toBeVisible()
+    expect((await request.get('/api/health/ready')).status()).toBe(503)
+  } finally {
+    await request.get('http://127.0.0.1:54330/start')
+  }
+  await expect.poll(async () => (await request.get('/api/health/ready')).status()).toBe(200)
 })
 test('leaderboard failure is shown rather than claiming there are no scores', async ({
   page,

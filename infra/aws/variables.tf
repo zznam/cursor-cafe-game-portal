@@ -16,9 +16,6 @@ variable "secondary_region" {
 }
 variable "zone_id" { type = string }
 variable "hostname" { type = string }
-variable "supabase_url" { type = string }
-variable "primary_read_url" { default = "" }
-variable "secondary_read_url" { default = "" }
 variable "image_hosts" { default = "" }
 variable "launch_enabled" {
   description = "Set true AFTER the first successful image deployment to enable autoscaling."

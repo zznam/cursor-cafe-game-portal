@@ -77,14 +77,14 @@ test.describe('Games Listing', () => {
     })
 
     await actionButton.click()
+    await expect(gameCards.first()).toBeVisible()
     const actionFilteredCount = await gameCards.count()
 
     await allButton.click()
     await expect(allButton).toHaveClass(/bg-white text-purple-600/)
     await expect(actionButton).toHaveClass(/bg-white\/10 text-white/)
 
-    const allGamesCount = await gameCards.count()
-    expect(allGamesCount).toBeGreaterThanOrEqual(actionFilteredCount)
+    await expect.poll(() => gameCards.count()).toBeGreaterThanOrEqual(actionFilteredCount)
   })
 
   test('game cards are displayed when data is available', async ({ page }) => {

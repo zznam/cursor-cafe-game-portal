@@ -2,7 +2,7 @@
 
 A Next.js 16 / React 19 portal for Phaser browser games, with search, category browsing, favorites, ratings, comments, and leaderboards.
 
-**Vercel + Supabase remains the default deployment.** Multi-region AWS is an optional custom deployment, enabled only by explicitly running its workflows. No AWS account is needed for development or the normal Vercel path.
+**Vercel + Neon PostgreSQL is the default deployment.** Multi-region AWS is an optional custom deployment, enabled only by explicitly running its workflows. No AWS account is needed for development or the normal Vercel path.
 
 ## Local development
 
@@ -14,7 +14,7 @@ cp .env.local.example .env.local
 npm run dev
 ```
 
-Set `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SESSION_SECRET`, and `SITE_URL` as described in `.env.local.example`. Generate the session secret with `openssl rand -hex 32`. Service credentials remain on the server. Apply the database migrations before using writes; existing installations must follow the baseline instructions in [DEPLOYMENT.md](DEPLOYMENT.md).
+Set `DATABASE_URL`, `SESSION_SECRET`, and `SITE_URL` as described in `.env.local.example`. Generate the session secret with `openssl rand -hex 32`. Service credentials remain on the server. Run `npm run db:migrate` and `npm run db:seed` before starting the app. Existing Supabase data must be exported separately; follow the migration instructions in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Quality checks
 
@@ -27,7 +27,7 @@ npx playwright install chromium
 E2E_MOCK_DATABASE=true npm run test:e2e
 ```
 
-Browser tests use the built application and a local PostgREST fixture, with no production data or credentials. The SQL suite executes the production hardening migration against PostgreSQL through PGlite. Coverage thresholds apply to request schemas and guest-token signing; they are not a whole-app coverage claim. See [testing](docs/testing.md).
+Browser tests use the built application and a local PostgreSQL fixture, with no production data or credentials. The SQL suite executes the current PostgreSQL schema and historical Supabase hardening migration against PostgreSQL through PGlite. Coverage thresholds apply to request schemas and guest-token signing; they are not a whole-app coverage claim. See [testing](docs/testing.md).
 
 ## Deployment
 
@@ -42,7 +42,7 @@ Browser tests use the built application and a local PostgREST fixture, with no p
 | `app`, `components` | Server-rendered portal and interactive UI |
 | `app/api`, `lib/server` | Validated APIs, signed guest identity, database access |
 | `games` | Phaser games, loaded on demand |
-| `supabase/migrations` | Versioned database schema and permissions |
+| `database/migrations` | Versioned portable PostgreSQL schema |
 | `tests`, `e2e` | Security, SQL, release and browser regression tests |
 | `infra/aws` | Optional multi-region AWS infrastructure |
 | `.github/workflows` | Quality gates, default Vercel deployment, opt-in AWS and database workflows |

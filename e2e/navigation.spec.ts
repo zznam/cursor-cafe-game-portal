@@ -68,7 +68,7 @@ test.describe('Navigation', () => {
     const footer = page.locator('footer')
     await expect(footer).toBeVisible()
     await expect(
-      footer.getByText(/Built with Next\.js, Phaser & Supabase/i)
+      footer.getByText(/Built with Next\.js, Phaser & Neon/i)
     ).toBeVisible()
     await expect(footer.getByText(/2026 Cursor Café/i)).toBeVisible()
   })

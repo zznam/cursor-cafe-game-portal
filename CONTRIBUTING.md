@@ -159,35 +159,14 @@ Navigate to your game and test thoroughly:
 
 #### 7. Add to Database
 
-Create a migration file or add instructions in your PR for adding the game to Supabase:
+Set `DATABASE_URL` to your local development PostgreSQL database or a Neon development branch, then run:
 
-```sql
-INSERT INTO games (
-  slug,
-  title,
-  description,
-  thumbnail_url,
-  banner_url,
-  category,
-  tags,
-  developer_name,
-  developer_url,
-  package_name,
-  version
-) VALUES (
-  'my-awesome-game',
-  'My Awesome Game',
-  'An exciting new game that will blow your mind!',
-  '/games/my-awesome-game/thumbnail.png',
-  '/games/my-awesome-game/banner.png',
-  'Action',
-  ARRAY['arcade', 'fun', 'multiplayer'],
-  'Your Name',
-  'https://yourwebsite.com',
-  'my-awesome-game',
-  '1.0.0'
-);
+```sh
+npm run db:migrate
+npm run db:seed
 ```
+
+The seed command reads static metadata from every `games/<slug>/index.ts` module and adds missing games without replacing existing rows. Include a thumbnail in `public/games/<slug>/`; otherwise the catalog uses the shared placeholder. Include any additional schema or data requirements in your PR.
 
 #### 8. Submit Pull Request
 

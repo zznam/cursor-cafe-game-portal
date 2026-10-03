@@ -1,3 +1,5 @@
+> Historical Supabase guide. The app now uses Neon PostgreSQL; use [the current deployment guide](DEPLOYMENT.md) for setup and migration.
+
 > Historical setup notes. For current server credentials, schema migrations, and the default Vercel deployment, follow [DEPLOYMENT.md](DEPLOYMENT.md). AWS is an optional custom deployment.
 
 # Quick Start Guide

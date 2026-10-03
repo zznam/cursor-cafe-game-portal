@@ -38,8 +38,8 @@ const TECH_STACK = [
     color: "from-cyan-500/20 to-cyan-500/5",
   },
   {
-    name: "Supabase",
-    desc: "Backend & real-time database",
+    name: "Neon",
+    desc: "Serverless PostgreSQL database",
     color: "from-emerald-500/20 to-emerald-500/5",
   },
   {
