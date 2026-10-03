@@ -117,7 +117,7 @@ class PlatformJumperScene extends Phaser.Scene {
       this.scoreText?.setText(`Score: ${this.score}`)
 
       // generate new platforms above
-      this.platforms?.children.entries.forEach(p => {
+      this.platforms?.getChildren().forEach(p => {
         const plat = p as Phaser.GameObjects.Image
         plat.y += diff
         if (plat.y > 650) {

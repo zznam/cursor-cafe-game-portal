@@ -6,7 +6,7 @@ Thank you for your interest in contributing to Game Portal! This document provid
 
 ### Requirements
 
-- Game must be built with Phaser 3
+- Game must be built with Phaser 4
 - All assets must be properly licensed
 - Game must be appropriate for all audiences
 - No copyright violations

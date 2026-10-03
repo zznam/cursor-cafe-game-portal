@@ -50,9 +50,9 @@ function drawStar(gfx: Phaser.GameObjects.Graphics, color: number) {
     const angle = -Math.PI / 2 + (Math.PI / points) * i
     verts.push(CX + r * Math.cos(angle), CY + r * Math.sin(angle))
   }
-  const polyPoints: Phaser.Geom.Point[] = []
+  const polyPoints: Phaser.Math.Vector2[] = []
   for (let i = 0; i < verts.length; i += 2) {
-    polyPoints.push(new Phaser.Geom.Point(verts[i], verts[i + 1]))
+    polyPoints.push(new Phaser.Math.Vector2(verts[i], verts[i + 1]))
   }
   gfx.fillPoints(polyPoints, true)
 }
@@ -80,10 +80,10 @@ function drawCross(gfx: Phaser.GameObjects.Graphics, color: number) {
 
 function drawHexagon(gfx: Phaser.GameObjects.Graphics, color: number) {
   gfx.fillStyle(color, 1)
-  const pts: Phaser.Geom.Point[] = []
+  const pts: Phaser.Math.Vector2[] = []
   for (let i = 0; i < 6; i++) {
     const angle = (Math.PI / 3) * i - Math.PI / 6
-    pts.push(new Phaser.Geom.Point(CX + SYM_R * Math.cos(angle), CY + SYM_R * Math.sin(angle)))
+    pts.push(new Phaser.Math.Vector2(CX + SYM_R * Math.cos(angle), CY + SYM_R * Math.sin(angle)))
   }
   gfx.fillPoints(pts, true)
 }
@@ -173,6 +173,7 @@ class MemoryMatchScene extends Phaser.Scene {
       const rt = this.add.renderTexture(0, 0, CARD_W, CARD_H)
       rt.draw(gfx, 0, 0)
       rt.draw(questionMark, 0, 0)
+      rt.render()
       rt.saveTexture('card_back')
       rt.destroy()
       questionMark.destroy()

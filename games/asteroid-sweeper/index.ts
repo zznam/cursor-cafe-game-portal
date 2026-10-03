@@ -134,8 +134,8 @@ class AsteroidSweeperScene extends Phaser.Scene {
       this.lastFired = time
     }
 
-    this.bullets?.children.entries.forEach(b => { if ((b as Phaser.GameObjects.Sprite).y < -10) b.destroy() })
-    this.asteroids?.children.entries.forEach(a => { if ((a as Phaser.GameObjects.Sprite).y > 620) a.destroy() })
+    this.bullets?.getChildren().forEach(b => { if ((b as Phaser.GameObjects.Sprite).y < -10) b.destroy() })
+    this.asteroids?.getChildren().forEach(a => { if ((a as Phaser.GameObjects.Sprite).y > 620) a.destroy() })
   }
 }
 

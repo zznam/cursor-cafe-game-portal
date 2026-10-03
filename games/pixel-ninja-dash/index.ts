@@ -160,8 +160,8 @@ class PixelNinjaDashScene extends Phaser.Scene {
       t.x -= (t.getData('speed') as number) * 0.016
       if (t.x < -10) t.x = 810
     }
-    this.obstacles?.children.entries.forEach(o => { if ((o as Phaser.GameObjects.Sprite).x < -50) o.destroy() })
-    this.shurikens?.children.entries.forEach(s => { if ((s as Phaser.GameObjects.Sprite).x > 850) s.destroy() })
+    this.obstacles?.getChildren().forEach(o => { if ((o as Phaser.GameObjects.Sprite).x < -50) o.destroy() })
+    this.shurikens?.getChildren().forEach(s => { if ((s as Phaser.GameObjects.Sprite).x > 850) s.destroy() })
   }
 }
 
