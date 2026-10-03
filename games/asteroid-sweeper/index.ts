@@ -49,8 +49,8 @@ class AsteroidSweeperScene extends Phaser.Scene {
       loop: true,
     })
 
-    this.physics.add.overlap(this.bullets, this.asteroids, this.hitAsteroid as any, undefined, this)
-    this.physics.add.overlap(this.player, this.asteroids, this.hitPlayer as any, undefined, this)
+    this.physics.add.overlap(this.bullets, this.asteroids, this.hitAsteroid as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
+    this.physics.add.overlap(this.player, this.asteroids, this.hitPlayer as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
 
     this.cursors = this.input.keyboard?.createCursorKeys()
   }
@@ -95,7 +95,7 @@ class AsteroidSweeperScene extends Phaser.Scene {
     ab.setAngularVelocity(Phaser.Math.Between(-100, 100))
   }
 
-  hitAsteroid(bullet: any, asteroid: any) {
+  hitAsteroid(bullet: Phaser.GameObjects.GameObject, asteroid: Phaser.GameObjects.GameObject) {
     bullet.destroy()
     asteroid.destroy()
     this.score += 10
@@ -134,8 +134,8 @@ class AsteroidSweeperScene extends Phaser.Scene {
       this.lastFired = time
     }
 
-    this.bullets?.children.entries.forEach(b => { if ((b as any).y < -10) b.destroy() })
-    this.asteroids?.children.entries.forEach(a => { if ((a as any).y > 620) a.destroy() })
+    this.bullets?.children.entries.forEach(b => { if ((b as Phaser.GameObjects.Sprite).y < -10) b.destroy() })
+    this.asteroids?.children.entries.forEach(a => { if ((a as Phaser.GameObjects.Sprite).y > 620) a.destroy() })
   }
 }
 

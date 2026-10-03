@@ -3,16 +3,16 @@ import { test, expect } from '@playwright/test'
 test.describe('Navigation', () => {
   test('home page loads with correct title', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle(/Game Portal/)
+    await expect(page).toHaveTitle(/Cursor Café/)
   })
 
   test('home page displays hero section', async ({ page }) => {
     await page.goto('/')
     await expect(
-      page.getByRole('heading', { name: /Welcome to Game Portal/i })
+      page.getByRole('heading', { name: /Your Cozy Corner/i })
     ).toBeVisible()
     await expect(
-      page.getByText(/Discover and play amazing Phaser games/i)
+      page.getByText(/Grab a virtual coffee/i)
     ).toBeVisible()
   })
 
@@ -36,10 +36,10 @@ test.describe('Navigation', () => {
 
   test('can navigate back to home from games page', async ({ page }) => {
     await page.goto('/games')
-    await page.locator('a[href="/"]').filter({ hasText: /Game Portal/i }).click()
+    await page.locator('header a[href="/"]').filter({ hasText: /Cursor Café/i }).click()
     await expect(page).toHaveURL('/')
     await expect(
-      page.getByRole('heading', { name: /Welcome to Game Portal/i })
+      page.getByRole('heading', { name: /Your Cozy Corner/i })
     ).toBeVisible()
   })
 
@@ -68,9 +68,9 @@ test.describe('Navigation', () => {
     const footer = page.locator('footer')
     await expect(footer).toBeVisible()
     await expect(
-      footer.getByText(/Built with Next\.js, Phaser, and Supabase/i)
+      footer.getByText(/Built with Next\.js, Phaser & Supabase/i)
     ).toBeVisible()
-    await expect(footer.getByText(/2026 Game Portal/i)).toBeVisible()
+    await expect(footer.getByText(/2026 Cursor Café/i)).toBeVisible()
   })
 
   test('logo links to home page', async ({ page }) => {
@@ -83,7 +83,7 @@ test.describe('Navigation', () => {
 
   test('Browse All Games button navigates to games page', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('link', { name: /Browse All Games/i }).click()
+    await page.getByRole('link', { name: /^Play Now$/i }).first().click()
     await expect(page).toHaveURL(/\/games/)
   })
 

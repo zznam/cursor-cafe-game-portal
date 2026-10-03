@@ -1,3 +1,4 @@
+import { notifyStorageChange } from '@/hooks/use-browser-storage'
 import { PhaserGameModule } from '@/types/game'
 
 export class GameLoader {
@@ -49,8 +50,10 @@ export function getUserId(): string {
 export function getFavorites(): string[] {
   if (typeof window === 'undefined') return []
   
-  const favorites = localStorage.getItem('favorites')
-  return favorites ? JSON.parse(favorites) : []
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem('favorites') || '[]')
+    return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string') : []
+  } catch { return [] }
 }
 
 export function toggleFavorite(gameId: string): boolean {
@@ -63,7 +66,7 @@ export function toggleFavorite(gameId: string): boolean {
     favorites.push(gameId)
   }
   
-  localStorage.setItem('favorites', JSON.stringify(favorites))
+  try { localStorage.setItem('favorites', JSON.stringify(favorites)); notifyStorageChange() } catch { return false }
   return index === -1
 }
 

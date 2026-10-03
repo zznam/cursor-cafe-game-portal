@@ -5,8 +5,8 @@ import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { GameMetadata } from '@/types/game'
 import { Star, Play, Heart, Sword, Zap, Puzzle, Target, MapPin, Rocket, Car, Trophy, Gamepad2 } from 'lucide-react'
-import { isFavorite, toggleFavorite } from '@/lib/game-loader'
-import { useState, useEffect } from 'react'
+import { toggleFavorite } from '@/lib/game-loader'
+import { useBrowserStorage } from '@/hooks/use-browser-storage'
 
 interface GameCardProps {
   game: GameMetadata
@@ -39,17 +39,14 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 }
 
 export function GameCard({ game }: GameCardProps) {
-  const [favorite, setFavorite] = useState(false)
-
-  useEffect(() => {
-    setFavorite(isFavorite(game.id))
-  }, [game.id])
+  const stored = useBrowserStorage('favorites')
+  let favorite = false
+  try { const parsed: unknown = JSON.parse(stored || '[]'); favorite = Array.isArray(parsed) && parsed.includes(game.id) } catch { /* Invalid local storage is ignored. */ }
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    const newState = toggleFavorite(game.id)
-    setFavorite(newState)
+    toggleFavorite(game.id)
   }
 
   const gradient = CATEGORY_GRADIENTS[game.category] || CATEGORY_GRADIENTS.Other
@@ -79,6 +76,8 @@ export function GameCard({ game }: GameCardProps) {
           </div>
 
           <button
+            aria-label={`${favorite ? "Remove" : "Add"} ${game.title} ${favorite ? "from" : "to"} favorites`}
+            aria-pressed={favorite}
             onClick={handleFavoriteClick}
             className="absolute top-2 right-2 z-30 p-2 bg-black/40 rounded-full hover:bg-black/60 transition-colors"
           >

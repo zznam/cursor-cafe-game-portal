@@ -60,7 +60,7 @@ class TowerDefenseScene extends Phaser.Scene {
       this.placeTower(pointer.x, pointer.y)
     })
 
-    this.physics.add.overlap(this.bullets, this.enemies, this.hitEnemy as any, undefined, this)
+    this.physics.add.overlap(this.bullets, this.enemies, this.hitEnemy as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
 
     this.startWave()
   }
@@ -115,7 +115,7 @@ class TowerDefenseScene extends Phaser.Scene {
     e.setData('speed', 80 + this.wave * 5)
   }
 
-  hitEnemy(bullet: any, enemy: any) {
+  hitEnemy(bullet: Phaser.GameObjects.GameObject, enemy: Phaser.GameObjects.GameObject) {
     bullet.destroy()
     const hp = enemy.getData('hp') - 10
     enemy.setData('hp', hp)
@@ -134,7 +134,7 @@ class TowerDefenseScene extends Phaser.Scene {
     // move enemies along path
     this.enemies?.children.entries.forEach(e => {
       const enemy = e as Phaser.GameObjects.Arc
-      let idx = enemy.getData('pathIdx') as number
+      const idx = enemy.getData('pathIdx') as number
       const speed = enemy.getData('speed') as number
       if (idx >= this.path.length - 1) {
         enemy.destroy()
@@ -169,13 +169,13 @@ class TowerDefenseScene extends Phaser.Scene {
     // towers shoot
     for (const tower of this.towers) {
       if (time - tower.lastFired < 500) continue
-      let closest: any = null
+      let closest: Phaser.GameObjects.Arc | null = null
       let closestDist = tower.range
 
-      this.enemies?.children.entries.forEach(e => {
-        const d = Phaser.Math.Distance.Between(tower.x, tower.y, (e as any).x, (e as any).y)
-        if (d < closestDist) { closestDist = d; closest = e }
-      })
+      for (const e of this.enemies?.children.entries || []) {
+        const d = Phaser.Math.Distance.Between(tower.x, tower.y, (e as Phaser.GameObjects.Sprite).x, (e as Phaser.GameObjects.Sprite).y)
+        if (d < closestDist) { closestDist = d; closest = e as Phaser.GameObjects.Arc }
+      }
 
       if (closest) {
         tower.lastFired = time

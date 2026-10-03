@@ -1,4 +1,4 @@
-import {getGames} from "@/lib/api";
+import {getGames} from "@/lib/server/catalog";
 import {GameCard} from "@/components/game-card";
 import {RecentlyPlayed} from "@/components/recently-played";
 import {Button} from "@/components/ui/button";
@@ -15,20 +15,12 @@ import {
 import Link from "next/link";
 import {GAME_CATEGORIES} from "@/types/game";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  let featuredGames: Awaited<ReturnType<typeof getGames>> = [];
-  let popularGames: Awaited<ReturnType<typeof getGames>> = [];
-
-  try {
-    [featuredGames, popularGames] = await Promise.all([
-      getGames({featured: true, limit: 6}),
-      getGames({limit: 8}),
-    ]);
-  } catch (error) {
-    console.error("Failed to load games:", error);
-  }
+  const [featuredGames, popularGames] = await Promise.all([
+    getGames({ featured: true, limit: 6 }), getGames({ limit: 8 }),
+  ]);
 
   return (
     <div className="container mx-auto px-4 py-12">

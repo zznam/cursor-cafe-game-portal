@@ -1,5 +1,6 @@
 'use client'
 
+import type { Game } from 'phaser'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { GameLoader } from '@/lib/game-loader'
 import { Analytics } from '@/lib/analytics'
@@ -21,7 +22,7 @@ export function GamePlayer({
   controls,
 }: GamePlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const gameRef = useRef<any>(null)
+  const gameRef = useRef<Game | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [started, setStarted] = useState(false)
@@ -57,8 +58,7 @@ export function GamePlayer({
         }
       })
 
-      await Analytics.incrementPlayCount(gameSlug)
-      await Analytics.trackPlay(gameId)
+      void Analytics.trackPlay(gameId)
 
       setLoading(false)
     } catch (err) {
@@ -66,7 +66,7 @@ export function GamePlayer({
       setError(err instanceof Error ? err.message : 'Failed to load game')
       setLoading(false)
     }
-  }, [packageName, gameId, gameSlug])
+  }, [packageName, gameId, gameSlug, title])
 
   useEffect(() => {
     return () => {

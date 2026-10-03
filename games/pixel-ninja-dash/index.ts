@@ -53,8 +53,8 @@ class PixelNinjaDashScene extends Phaser.Scene {
       loop: true,
     })
 
-    this.physics.add.overlap(this.ninja, this.obstacles, this.hitObstacle as any, undefined, this)
-    this.physics.add.overlap(this.shurikens, this.obstacles, this.hitShurikenObstacle as any, undefined, this)
+    this.physics.add.overlap(this.ninja, this.obstacles, this.hitObstacle as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
+    this.physics.add.overlap(this.shurikens, this.obstacles, this.hitShurikenObstacle as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this)
 
     this.input.on('pointerdown', () => {
       if (this.gameOver) return
@@ -147,7 +147,7 @@ class PixelNinjaDashScene extends Phaser.Scene {
     this.input.once('pointerdown', () => this.scene.restart())
   }
 
-  hitShurikenObstacle(shuriken: any, obstacle: any) {
+  hitShurikenObstacle(shuriken: Phaser.GameObjects.GameObject, obstacle: Phaser.GameObjects.GameObject) {
     shuriken.destroy()
     obstacle.destroy()
     this.score += 50
@@ -160,8 +160,8 @@ class PixelNinjaDashScene extends Phaser.Scene {
       t.x -= (t.getData('speed') as number) * 0.016
       if (t.x < -10) t.x = 810
     }
-    this.obstacles?.children.entries.forEach(o => { if ((o as any).x < -50) o.destroy() })
-    this.shurikens?.children.entries.forEach(s => { if ((s as any).x > 850) s.destroy() })
+    this.obstacles?.children.entries.forEach(o => { if ((o as Phaser.GameObjects.Sprite).x < -50) o.destroy() })
+    this.shurikens?.children.entries.forEach(s => { if ((s as Phaser.GameObjects.Sprite).x > 850) s.destroy() })
   }
 }
 

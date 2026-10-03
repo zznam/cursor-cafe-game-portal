@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
+import { useBrowserStorage } from '@/hooks/use-browser-storage'
 import Link from 'next/link'
 import { Clock, Play } from 'lucide-react'
 import {
-  getRecentlyPlayed,
   RecentlyPlayedItem,
 } from '@/lib/recently-played'
 
@@ -29,11 +29,13 @@ function timeAgo(dateStr: string): string {
 }
 
 export function RecentlyPlayed() {
-  const [items, setItems] = useState<RecentlyPlayedItem[]>([])
-
-  useEffect(() => {
-    setItems(getRecentlyPlayed().slice(0, 4))
-  }, [])
+  const stored = useBrowserStorage('recently_played')
+  const items = useMemo<RecentlyPlayedItem[]>(() => {
+    try {
+      const parsed: unknown = JSON.parse(stored || '[]')
+      return Array.isArray(parsed) ? parsed.filter(item => item && typeof item.slug === 'string' && typeof item.title === 'string' && !Number.isNaN(Date.parse(item.playedAt))).slice(0, 4) : []
+    } catch { return [] }
+  }, [stored])
 
   if (items.length === 0) return null
 

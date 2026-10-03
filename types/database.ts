@@ -10,6 +10,7 @@ export interface Database {
   public: {
     Tables: {
       games: {
+        Relationships: []
         Row: {
           id: string
           slug: string
@@ -72,6 +73,7 @@ export interface Database {
         }
       }
       ratings: {
+        Relationships: []
         Row: {
           id: string
           game_id: string
@@ -101,6 +103,7 @@ export interface Database {
         }
       }
       comments: {
+        Relationships: []
         Row: {
           id: string
           game_id: string
@@ -130,6 +133,7 @@ export interface Database {
         }
       }
       leaderboards: {
+        Relationships: []
         Row: {
           id: string
           game_id: string
@@ -159,6 +163,7 @@ export interface Database {
         }
       }
       analytics: {
+        Relationships: []
         Row: {
           id: string
           game_id: string
@@ -192,7 +197,8 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      production_ready: { Args: Record<string, never>; Returns: boolean }
+      consume_rate_limit: { Args: { bucket_key: string; max_requests: number }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

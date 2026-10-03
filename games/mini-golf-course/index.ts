@@ -131,7 +131,7 @@ class MiniGolfScene extends Phaser.Scene {
     bb.setDrag(100, 100)
     bb.setMaxVelocity(600, 600)
 
-    this.physics.add.collider(this.ball, this.walls)
+    if (this.walls) this.physics.add.collider(this.ball, this.walls)
   }
 
   addWall(x: number, y: number, w: number, h: number) {

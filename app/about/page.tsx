@@ -79,7 +79,7 @@ export default function AboutPage() {
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
             We believe gaming should be instant, accessible, and fun. No
-            downloads, no sign-ups — just click and play. That's the Cursor Café
+            downloads, no sign-ups — just click and play. That&apos;s the Cursor Café
             way.
           </p>
         </div>

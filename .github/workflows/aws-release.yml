@@ -1,0 +1,99 @@
+name: Custom AWS release
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: production-changes
+  cancel-in-progress: false
+jobs:
+  checks:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/ci.yml
+  release:
+    needs: checks
+    environment: aws-production
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_PROJECT: ${{ vars.AWS_PROJECT }}
+      PRIMARY_REGION: ${{ vars.AWS_PRIMARY_REGION }}
+      SECONDARY_REGION: ${{ vars.AWS_SECONDARY_REGION }}
+      APP_HOSTNAME: ${{ vars.APP_HOSTNAME }}
+      ASSET_SECONDARY_BUCKET: ${{ vars.ASSET_SECONDARY_BUCKET }}
+      ASSET_BUCKET: ${{ vars.ASSET_BUCKET }}
+      ASSET_PREFIX: ${{ vars.ASSET_PREFIX }}
+      APP_VERSION: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_PRIMARY_REGION }}
+      - uses: docker/setup-buildx-action@v3
+      - name: Authenticate regional image registries
+        run: |
+          account=$(aws sts get-caller-identity --query Account --output text)
+          echo "AWS_ACCOUNT_ID=$account" >> "$GITHUB_ENV"
+          for region in "$PRIMARY_REGION" "$SECONDARY_REGION"; do
+            aws ecr get-login-password --region "$region" | docker login --username AWS --password-stdin "$account.dkr.ecr.$region.amazonaws.com"
+          done
+      - name: Build one immutable release
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          platforms: linux/amd64
+          tags: cafe:${{ github.sha }}
+          build-args: |
+            APP_VERSION=${{ github.sha }}
+            ASSET_PREFIX=${{ vars.ASSET_PREFIX }}
+            IMAGE_HOSTS=${{ vars.IMAGE_HOSTS }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Scan release image
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: cafe:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+      - name: Publish static chunks before serving new HTML
+        run: |
+          test -n "$ASSET_BUCKET" && test -n "$ASSET_SECONDARY_BUCKET" && test -n "$ASSET_PREFIX"
+          container=$(docker create "cafe:$APP_VERSION")
+          docker cp "$container:/app/.next/static" ./release-static
+          docker rm "$container"
+          aws s3 sync release-static "s3://$ASSET_BUCKET/_next/static" --cache-control 'public,max-age=31536000,immutable' --region "$PRIMARY_REGION"
+          aws s3 sync release-static "s3://$ASSET_SECONDARY_BUCKET/_next/static" --cache-control 'public,max-age=31536000,immutable' --region "$SECONDARY_REGION"
+      - name: Publish identical image to both regions
+        run: |
+          for region in "$PRIMARY_REGION" "$SECONDARY_REGION"; do
+            repo="$AWS_ACCOUNT_ID.dkr.ecr.$region.amazonaws.com/$AWS_PROJECT"
+            tag="$APP_VERSION-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            docker tag "cafe:$APP_VERSION" "$repo:$tag"
+            docker push "$repo:$tag"
+            digest=$(aws ecr describe-images --region "$region" --repository-name "$AWS_PROJECT" --image-ids "imageTag=$tag" --query 'imageDetails[0].imageDigest' --output text)
+            printf '%s@%s' "$repo" "$digest" > "image-$region.txt"
+          done
+      - name: Release secondary region and verify
+        run: |
+          export AWS_REGION="$SECONDARY_REGION" IMAGE_URI="$(cat "image-$SECONDARY_REGION.txt")" REGIONAL_URL="https://$SECONDARY_REGION.$APP_HOSTNAME"
+          bash scripts/deploy-aws-region.sh
+      - name: Release primary region and verify
+        run: |
+          export AWS_REGION="$PRIMARY_REGION" IMAGE_URI="$(cat "image-$PRIMARY_REGION.txt")" REGIONAL_URL="https://$PRIMARY_REGION.$APP_HOSTNAME"
+          bash scripts/deploy-aws-region.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-record-${{ github.sha }}
+          path: |
+            previous-*.txt
+            image-*.txt
+          retention-days: 90

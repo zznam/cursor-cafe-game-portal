@@ -1,257 +1,82 @@
-# Deployment Guide
+# Deploy to Vercel (default)
 
-This guide will help you deploy Game Portal to Vercel with Supabase.
+The normal deployment is **Vercel + the existing Supabase project**. AWS is an optional custom path in [docs/aws-deployment.md](docs/aws-deployment.md); nothing in the default deploy scripts provisions AWS.
 
-## Prerequisites
+## 1. Prepare Supabase
 
-- GitHub account
-- Vercel account
-- Supabase account
+Back up an existing database before migrating. The app now routes all writes through validated APIs and disables direct anonymous database writes. Use a short maintenance window when upgrading the old app: the hardening migration intentionally prevents its older browser-write code from working until the new app is deployed.
 
-## Step 1: Set Up Supabase
+For a **new database**, run both files in `supabase/migrations` in order using the Supabase CLI, or run `supabase/schema.sql` once in the SQL editor. The combined schema is a convenience for new installs, not an idempotent migration.
 
-### 1.1 Create a Supabase Project
+For a database **already created from the old `schema.sql`**, first compare its schema with `20261002000100_baseline.sql`. After confirming they match, mark that baseline as applied:
 
-1. Go to [Supabase](https://supabase.com)
-2. Click "New Project"
-3. Fill in project details
-4. Wait for project to be created
-
-### 1.2 Run Database Schema
-
-1. In your Supabase dashboard, go to "SQL Editor"
-2. Copy the contents of `supabase/schema.sql`
-3. Paste and run the SQL
-4. Verify tables were created in "Table Editor"
-
-### 1.3 Get API Keys
-
-1. Go to "Settings" → "API"
-2. Copy your:
-   - Project URL
-   - Anon/Public key
-
-## Step 2: Deploy to Vercel
-
-### Option A: Deploy Button (Recommended)
-
-1. Click the "Deploy to Vercel" button in README.md
-2. Connect your GitHub account
-3. Configure environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key
-4. Click "Deploy"
-
-### Option B: Manual Deployment
-
-1. Push your code to GitHub
-2. Go to [Vercel](https://vercel.com)
-3. Click "New Project"
-4. Import your GitHub repository
-5. Configure environment variables (same as above)
-6. Click "Deploy"
-
-## Step 3: Add Sample Games
-
-After deployment, add sample games to your database:
-
-```sql
--- Breakout Game
-INSERT INTO games (
-  slug, title, description, thumbnail_url,
-  category, tags, developer_name, package_name, version, featured
-) VALUES (
-  'breakout',
-  'Breakout Classic',
-  'Classic brick-breaking arcade game. Use arrow keys to move the paddle and break all the bricks!',
-  '/games/breakout/thumbnail.png',
-  'Arcade',
-  ARRAY['classic', 'arcade', 'retro'],
-  'Game Portal Team',
-  'breakout',
-  '1.0.0',
-  true
-);
-
--- Space Shooter Game
-INSERT INTO games (
-  slug, title, description, thumbnail_url,
-  category, tags, developer_name, package_name, version, featured
-) VALUES (
-  'space-shooter',
-  'Space Shooter',
-  'Defend Earth from alien invaders! Use arrow keys to move and spacebar to shoot.',
-  '/games/space-shooter/thumbnail.png',
-  'Shooter',
-  ARRAY['space', 'action', 'arcade'],
-  'Game Portal Team',
-  'space-shooter',
-  '1.0.0',
-  true
-);
+```sh
+supabase migration repair 20261002000100 --status applied --db-url "$SUPABASE_DB_URL"
+supabase db push --db-url "$SUPABASE_DB_URL" --dry-run
+supabase db push --db-url "$SUPABASE_DB_URL"
 ```
 
-## Step 4: Configure Domain (Optional)
+Do not rerun the baseline over existing tables or run `db reset` in production. The hardening migration preserves legacy rows and adds constraints using `NOT VALID`; validate/clean old rows separately. Existing unsigned guest IDs remain readable but are not claimed by new signed guests.
 
-1. In Vercel dashboard, go to your project
-2. Click "Settings" → "Domains"
-3. Add your custom domain
-4. Follow DNS configuration instructions
+Seed actual games using the repository seed SQL before launch. `/api/health/ready` verifies both credentials and the hardened schema; the deployment smoke test also requires a nonempty catalog.
 
-## Step 5: Enable Analytics (Optional)
+The manual **Database migrations** workflow uses GitHub environment `database-production` and secret `SUPABASE_DB_URL` (an SSL-enabled direct or session-pooler connection). Restrict this environment to the main branch. This workflow remains separate from application releases so database changes can be reviewed and timed explicitly.
 
-Vercel provides built-in analytics:
+## 2. Configure Vercel
 
-1. Go to your project in Vercel
-2. Click "Analytics" tab
-3. Enable analytics
+Import the repository into Vercel using Next.js and Node.js 22. The native Git integration remains the default; no `git.deploymentEnabled` override is added.
 
-## Environment Variables
+Set these **server-only** production environment variables:
 
-Required variables:
+| Variable | Value |
+| --- | --- |
+| `SUPABASE_URL` | Primary project URL |
+| `SUPABASE_ANON_KEY` | Public/anon API key used for reads |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only service role key used for mutations |
+| `SESSION_SECRET` | At least 32 random characters; retain it across releases |
+| `SITE_URL` | Exact canonical HTTPS origin, e.g. `https://play.example.com` |
+| `SUPABASE_READ_URL` | Optional catalog-only read endpoint; omit initially |
+| `IMAGE_HOSTS` | Optional comma-separated image hostnames, configured before building |
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+Keep `ASSET_PREFIX` unset on Vercel; Vercel serves its own static assets. Legacy `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are accepted as a read-only compatibility fallback, but new setup should use the server names above. Never prefix the service key or session secret with `NEXT_PUBLIC_`.
+
+Guest writes require an Origin equal to `SITE_URL`. Preview deployments need their own configured origin and a separate test database/secrets before testing mutations. Unconfigured previews fail writes closed.
+
+## 3. Choose one release mechanism
+
+### Native Vercel Git integration
+
+Keep the existing integration and merge to the production branch. Enable Vercel deployment checks / branch protection for the **Quality gates** workflow as appropriate for your account. Local deployments remain:
+
+```sh
+npm install --global vercel@62.1.0
+vercel login
+vercel link
+npm run deploy
 ```
 
-Optional variables:
+`deploy.sh` runs lint, type checks, and unit/SQL/release tests, then calls `vercel --prod`. It never removes or overwrites project environment variables.
 
-```env
-NEXT_PUBLIC_ENABLE_ANALYTICS=true
-```
+### Supplied GitHub deployment pipeline
 
-## Updating Your Deployment
+Use **Deploy to Vercel (default)** manually on `main`, or set repository variable `VERCEL_CI_DEPLOY=true` to run it after successful main-branch quality gates. If enabling this mode, disable duplicate production deployments in the Vercel Git integration; do not run both release mechanisms for the same branch.
 
-### Automatic Deployments
+Create environment `vercel-production`, restricted to `main`, with:
 
-Vercel automatically deploys when you push to your main branch.
+- Variables: `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
+- Secret: `VERCEL_TOKEN`.
+- Optional secret: `VERCEL_AUTOMATION_BYPASS_SECRET` for protected deployment smoke tests.
 
-### Manual Deployments
+The pipeline pulls the project configuration, builds, creates a production deployment without assigning the domain, checks readiness/catalog/homepage, and promotes the verified URL. A failed smoke test leaves the currently promoted production deployment serving traffic. Automatic runs check out the exact commit tested by CI. Manual runs execute quality gates first.
 
-```bash
-# Install Vercel CLI
-npm i -g vercel
+Native builds use Vercel's automatic deployment ID. The prebuilt pipeline supplies `APP_DEPLOYMENT_ID` from the repository ID, workflow run ID, and attempt, which the app hashes to a valid 32-character ID. Each rebuild gets a unique deployment ID even when releasing the same commit again; `APP_VERSION` retains the full commit SHA for health and smoke checks. Custom AWS builds derive their deployment ID from `APP_VERSION`, keeping the one built artifact consistent across regions.
 
-# Deploy
-vercel --prod
-```
+## Operations
 
-## Troubleshooting
+- `/api/health` is process liveness. `/api/health/ready` verifies the primary, configured catalog read endpoint, and the service role/migration contract. Responses are never cached.
+- Monitor Vercel errors and Supabase saturation/replication lag. Configure backups/PITR and test restores before a public launch.
+- Database mutation rate limits are shared across instances and regions. Guests are not verified accounts, and browser-generated scores are not cheat-proof. Add account verification/moderation and server-verified scoring before prizes or high-trust competitions.
+- Keep analytics retention bounded operationally, for example deleting rows older than 90 days in a scheduled database job. Choose the retention period for your product before launch.
+- Roll back an application release with Vercel's previous production deployment or `vercel rollback <deployment-url>`. Database migrations are forward-only; ensure old and new application versions are schema-compatible before rollback.
 
-### Build Errors
-
-**Issue**: Build fails with TypeScript errors
-
-**Solution**: Check `tsconfig.json` and ensure all types are correct
-
-**Issue**: Missing environment variables
-
-**Solution**: Add variables in Vercel dashboard under Settings → Environment Variables
-
-### Database Connection Issues
-
-**Issue**: Can't connect to Supabase
-
-**Solution**: 
-1. Verify environment variables are correct
-2. Check Supabase project is active
-3. Verify API keys haven't been rotated
-
-### Game Loading Issues
-
-**Issue**: Games don't load
-
-**Solution**:
-1. Check game is in database
-2. Verify package name matches folder name
-3. Check browser console for errors
-
-## Performance Optimization
-
-### Image Optimization
-
-Use Next.js Image component for thumbnails:
-
-```typescript
-import Image from 'next/image'
-
-<Image
-  src={game.thumbnailUrl}
-  alt={game.title}
-  width={800}
-  height={450}
-/>
-```
-
-### Caching
-
-Adjust revalidation time in pages:
-
-```typescript
-export const revalidate = 60 // Revalidate every 60 seconds
-```
-
-### Database Indexes
-
-Ensure indexes are created (already in schema.sql):
-- Games by slug
-- Games by category
-- Leaderboards by score
-
-## Monitoring
-
-### Vercel Analytics
-
-Monitor:
-- Page views
-- Response times
-- Error rates
-
-### Supabase Logs
-
-Check:
-- Database queries
-- API usage
-- Error logs
-
-## Security
-
-### Environment Variables
-
-- Never commit `.env.local`
-- Use Vercel environment variables
-- Rotate keys regularly
-
-### Database Security
-
-- Row Level Security (RLS) is enabled
-- Public read access only
-- Validate all inputs
-
-## Scaling
-
-### Database
-
-Supabase automatically scales, but consider:
-- Upgrading plan for more connections
-- Adding read replicas
-- Optimizing queries
-
-### Vercel
-
-- Automatic scaling included
-- Consider Pro plan for:
-  - More bandwidth
-  - Better analytics
-  - Priority support
-
-## Support
-
-- Vercel: [vercel.com/support](https://vercel.com/support)
-- Supabase: [supabase.com/support](https://supabase.com/support)
-- Game Portal: Open a GitHub issue
-
----
-
-Happy deploying! 🚀
+For additional regions or custom network/runtime control, explicitly choose the [AWS runbook](docs/aws-deployment.md). No cloud resources have been provisioned by this implementation.

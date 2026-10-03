@@ -1,0 +1,12 @@
+project = "cursor-cafe"
+primary_region = "ap-southeast-1"
+secondary_region = "eu-west-1"
+zone_id = "Z_YOUR_EXISTING_PUBLIC_HOSTED_ZONE"
+hostname = "play.example.com"
+supabase_url = "https://your-project.supabase.co"
+# Optional dedicated catalog read endpoints; auth and all writes use supabase_url.
+primary_read_url = ""
+secondary_read_url = ""
+# Set true after first successful release; Terraform never overwrites release image revisions.
+launch_enabled = false
+alarm_email = ""

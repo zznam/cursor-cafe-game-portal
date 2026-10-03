@@ -17,7 +17,10 @@ test.describe('Responsive Layouts', () => {
       const hamburger = page.getByRole('button', { name: /menu/i })
       await hamburger.click()
 
-      const mobileNav = page.locator('nav').filter({ hasText: 'All Games' }).last()
+      const mobileNav = page
+        .locator('nav')
+        .filter({ hasText: 'All Games' })
+        .last()
       await expect(mobileNav).toBeVisible()
       await expect(mobileNav.getByText('Home')).toBeVisible()
       await expect(mobileNav.getByText('All Games')).toBeVisible()
@@ -30,7 +33,10 @@ test.describe('Responsive Layouts', () => {
       const hamburger = page.getByRole('button', { name: /menu/i })
       await hamburger.click()
 
-      const mobileNav = page.locator('nav').filter({ hasText: 'All Games' }).last()
+      const mobileNav = page
+        .locator('nav')
+        .filter({ hasText: 'All Games' })
+        .last()
       await mobileNav.getByText('All Games').click()
       await expect(page).toHaveURL(/\/games/)
     })
@@ -39,14 +45,14 @@ test.describe('Responsive Layouts', () => {
       await page.goto('/games')
 
       const gameCards = page.locator('a[href^="/games/"]')
-      const cardCount = await gameCards.count()
-      if (cardCount >= 2) {
-        const firstBox = await gameCards.first().boundingBox()
-        const secondBox = await gameCards.nth(1).boundingBox()
+      await expect(gameCards.nth(1)).toBeVisible()
+      const firstBox = await gameCards.first().boundingBox()
+      const secondBox = await gameCards.nth(1).boundingBox()
 
-        if (firstBox && secondBox) {
-          expect(secondBox.y).toBeGreaterThan(firstBox.y)
-        }
+      expect(firstBox).not.toBeNull()
+      expect(secondBox).not.toBeNull()
+      {
+        expect(secondBox!.y).toBeGreaterThan(firstBox!.y)
       }
     })
   })
@@ -58,15 +64,15 @@ test.describe('Responsive Layouts', () => {
       await page.goto('/games')
 
       const gameCards = page.locator('a[href^="/games/"]')
-      const cardCount = await gameCards.count()
-      if (cardCount >= 2) {
-        const firstBox = await gameCards.first().boundingBox()
-        const secondBox = await gameCards.nth(1).boundingBox()
+      await expect(gameCards.nth(1)).toBeVisible()
+      const firstBox = await gameCards.first().boundingBox()
+      const secondBox = await gameCards.nth(1).boundingBox()
 
-        if (firstBox && secondBox) {
-          const sameRow = Math.abs(firstBox.y - secondBox.y) < 10
-          expect(sameRow).toBeTruthy()
-        }
+      expect(firstBox).not.toBeNull()
+      expect(secondBox).not.toBeNull()
+      {
+        const sameRow = Math.abs(firstBox!.y - secondBox!.y) < 10
+        expect(sameRow).toBeTruthy()
       }
     })
   })
@@ -77,23 +83,18 @@ test.describe('Responsive Layouts', () => {
     test('full navigation visible', async ({ page }) => {
       await page.goto('/')
 
+      await expect(page.getByRole('link', { name: 'Home' })).toBeVisible()
       await expect(
-        page.getByRole('link', { name: 'Home' })
+        page.getByRole('link', { name: 'All Games' }).first(),
       ).toBeVisible()
       await expect(
-        page.getByRole('link', { name: 'All Games' }).first()
-      ).toBeVisible()
-      await expect(
-        page.getByRole('link', { name: 'Contribute' }).first()
+        page.getByRole('link', { name: 'Contribute' }).first(),
       ).toBeVisible()
     })
 
     test('sidebar layout on game detail page', async ({ page }) => {
       const response = await page.goto('/games/breakout')
-      if (response?.status() !== 200) {
-        test.skip(true, 'Game not found in database')
-        return
-      }
+      expect(response?.status()).toBe(200)
 
       const mainContent = page.locator('.lg\\:col-span-2')
       await expect(mainContent).toBeVisible({ timeout: 10000 })
@@ -103,15 +104,15 @@ test.describe('Responsive Layouts', () => {
       await page.goto('/games')
 
       const gameCards = page.locator('a[href^="/games/"]')
-      const cardCount = await gameCards.count()
-      if (cardCount >= 3) {
-        const firstBox = await gameCards.first().boundingBox()
-        const thirdBox = await gameCards.nth(2).boundingBox()
+      await expect(gameCards.nth(2)).toBeVisible()
+      const firstBox = await gameCards.first().boundingBox()
+      const thirdBox = await gameCards.nth(2).boundingBox()
 
-        if (firstBox && thirdBox) {
-          const sameRow = Math.abs(firstBox.y - thirdBox.y) < 10
-          expect(sameRow).toBeTruthy()
-        }
+      expect(firstBox).not.toBeNull()
+      expect(thirdBox).not.toBeNull()
+      {
+        const sameRow = Math.abs(firstBox!.y - thirdBox!.y) < 10
+        expect(sameRow).toBeTruthy()
       }
     })
   })

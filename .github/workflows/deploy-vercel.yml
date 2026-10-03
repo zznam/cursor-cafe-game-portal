@@ -1,0 +1,51 @@
+name: Deploy to Vercel (default)
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [Quality gates]
+    branches: [main]
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  group: vercel-production
+  cancel-in-progress: false
+jobs:
+  checks:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/ci.yml
+  deploy:
+    needs: checks
+    if: >-
+      always() &&
+      ((github.event_name == 'workflow_dispatch' && needs.checks.result == 'success') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.id == github.repository_id && vars.VERCEL_CI_DEPLOY == 'true'))
+    runs-on: ubuntu-latest
+    environment: vercel-production
+    env:
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      APP_VERSION: ${{ github.event.workflow_run.head_sha || github.sha }}
+      APP_DEPLOYMENT_ID: ${{ github.repository_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm install --global vercel@62.1.0
+      - run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - run: vercel build --prod --token="$VERCEL_TOKEN"
+      - name: Stage and verify production build
+        run: |
+          url=$(vercel deploy --prebuilt --prod --skip-domain --token="$VERCEL_TOKEN" --env "APP_VERSION=$APP_VERSION")
+          node scripts/smoke.mjs "$url" "$APP_VERSION"
+          echo "RELEASE_URL=$url" >> "$GITHUB_ENV"
+      - name: Promote verified deployment
+        run: vercel promote "$RELEASE_URL" --yes --token="$VERCEL_TOKEN"

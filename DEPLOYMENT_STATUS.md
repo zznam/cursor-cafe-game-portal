@@ -1,3 +1,5 @@
+> Historical setup notes. For current server credentials, schema migrations, and the default Vercel deployment, follow [DEPLOYMENT.md](DEPLOYMENT.md). AWS is an optional custom deployment.
+
 # 🎮 Game Portal - Deployment Status
 
 ## ✅ READY TO DEPLOY!
