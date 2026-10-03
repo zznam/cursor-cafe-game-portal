@@ -57,7 +57,7 @@ class WordScrambleScene extends Phaser.Scene {
     this.add.text(400, 520, 'Type the unscrambled word and press ENTER', {
       fontSize: '16px', color: '#888', fontFamily: 'monospace',
     }).setOrigin(0.5)
-    this.add.text(400, 550, 'Press BACKSPACE to delete, TAB to skip', {
+    this.add.text(400, 550, 'Press BACKSPACE to delete, RIGHT ARROW to skip', {
       fontSize: '14px', color: '#666', fontFamily: 'monospace',
     }).setOrigin(0.5)
 
@@ -103,8 +103,7 @@ class WordScrambleScene extends Phaser.Scene {
       this.checkAnswer()
     })
 
-    this.input.keyboard?.on('keydown-TAB', (e: KeyboardEvent) => {
-      e.preventDefault()
+    this.input.keyboard?.on('keydown-RIGHT', () => {
       if (this.gameOver) return
       this.feedbackText?.setText(`Skipped! It was: ${this.currentWord}`).setColor('#ff8800')
       this.userInput = ''
