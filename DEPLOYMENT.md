@@ -69,6 +69,8 @@ Create environment `vercel-production`, restricted to `main`, with:
 
 The pipeline pulls the project configuration, builds, creates a production deployment without assigning the domain, checks readiness/catalog/homepage, and promotes the verified URL. A failed smoke test leaves the currently promoted production deployment serving traffic. Automatic runs check out the exact commit tested by CI. Manual runs execute quality gates first.
 
+Native builds use Vercel's automatic deployment ID. The prebuilt pipeline supplies `APP_DEPLOYMENT_ID` from the repository ID, workflow run ID, and attempt, which the app hashes to a valid 32-character ID. Each rebuild gets a unique deployment ID even when releasing the same commit again; `APP_VERSION` retains the full commit SHA for health and smoke checks. Custom AWS builds derive their deployment ID from `APP_VERSION`, keeping the one built artifact consistent across regions.
+
 ## Operations
 
 - `/api/health` is process liveness. `/api/health/ready` verifies the primary, configured catalog read endpoint, and the service role/migration contract. Responses are never cached.
