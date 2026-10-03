@@ -6,6 +6,8 @@ import { GameLoader } from '@/lib/game-loader'
 import { Analytics } from '@/lib/analytics'
 import { addRecentlyPlayed } from '@/lib/recently-played'
 
+const SCROLL_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'PageUp', 'PageDown', 'Home', 'End'])
+
 interface GamePlayerProps {
   packageName: string
   gameId: string
@@ -46,7 +48,21 @@ export function GamePlayer({
       const containerId = `game-container-${gameId}`
       containerRef.current.id = containerId
 
-      gameRef.current = gameModule.createGame(containerId)
+      const container = containerRef.current
+      const game = gameModule.createGame(containerId)
+      gameRef.current = game
+
+      // Phaser defaults to window, which also captures typing in page forms.
+      const connectKeyboard = () => {
+        const keyboard = game.input.keyboard
+        if (!keyboard) return
+        keyboard.stopListeners()
+        keyboard.target = container
+        keyboard.startListeners()
+      }
+      if (game.isBooted) connectKeyboard()
+      else game.events.once('boot', connectKeyboard)
+      container.focus({ preventScroll: true })
 
       requestAnimationFrame(() => {
         const canvas = containerRef.current?.querySelector('canvas')
@@ -79,7 +95,12 @@ export function GamePlayer({
 
   useEffect(() => {
     const onFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
+      const container = containerRef.current
+      const fullscreenElement = document.fullscreenElement
+      setIsFullscreen(fullscreenElement === container?.parentElement)
+      if (gameRef.current && (!fullscreenElement || fullscreenElement === container?.parentElement)) {
+        container?.focus({ preventScroll: true })
+      }
     }
     document.addEventListener('fullscreenchange', onFullscreenChange)
     return () => document.removeEventListener('fullscreenchange', onFullscreenChange)
@@ -183,10 +204,40 @@ export function GamePlayer({
         </div>
       )}
 
+      <p id={`game-keyboard-help-${gameId}`} className="sr-only">
+        Click or focus the game to use its keyboard controls. Press Tab to leave the game.
+      </p>
+
       {/* Game container */}
       <div
         ref={containerRef}
-        className="w-full h-full"
+        role="group"
+        aria-label={`${title || packageName} game`}
+        aria-describedby={`game-keyboard-help-${gameId}`}
+        tabIndex={started && !loading ? 0 : -1}
+        onPointerDown={() => {
+          if (started && !loading) containerRef.current?.focus({ preventScroll: true })
+        }}
+        onBlur={() => {
+          const game = gameRef.current
+          if (!game) return
+          for (const scene of game.scene.getScenes()) {
+            scene.input.keyboard?.resetKeys()
+          }
+        }}
+        onKeyDownCapture={(event) => {
+          // Keep browser shortcuts and Tab navigation out of Phaser's handlers.
+          if (event.key === 'Tab' || event.altKey || event.ctrlKey || event.metaKey) {
+            event.stopPropagation()
+          }
+        }}
+        onKeyDown={(event) => {
+          // Run after Phaser's native listener so raw game handlers still receive input.
+          if (SCROLL_KEYS.has(event.key) && !event.altKey && !event.ctrlKey && !event.metaKey) {
+            event.preventDefault()
+          }
+        }}
+        className="w-full h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-purple-400"
         style={{
           display: 'flex',
           justifyContent: 'center',
