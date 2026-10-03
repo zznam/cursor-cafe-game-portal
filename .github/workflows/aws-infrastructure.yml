@@ -36,7 +36,7 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_TERRAFORM_ROLE_ARN }}
           aws-region: ${{ vars.AWS_PRIMARY_REGION }}
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: '1.14.7'
       - name: Initialize encrypted, locked state
