@@ -2,7 +2,8 @@ import type {Metadata} from "next";
 import {Outfit} from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import {Gamepad2, Coffee, Github, Twitter, Heart} from "lucide-react";
+import {Gamepad2, Coffee, Heart} from "lucide-react";
+import {Github, Twitter} from "@/components/brand-icons";
 import {MobileNav} from "@/components/mobile-nav";
 import {SearchBar} from "@/components/search-bar";
 
