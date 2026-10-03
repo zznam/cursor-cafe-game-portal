@@ -132,7 +132,7 @@ class TowerDefenseScene extends Phaser.Scene {
     if (this.gameOver) return
 
     // move enemies along path
-    this.enemies?.children.entries.forEach(e => {
+    this.enemies?.getChildren().forEach(e => {
       const enemy = e as Phaser.GameObjects.Arc
       const idx = enemy.getData('pathIdx') as number
       const speed = enemy.getData('speed') as number
@@ -172,7 +172,7 @@ class TowerDefenseScene extends Phaser.Scene {
       let closest: Phaser.GameObjects.Arc | null = null
       let closestDist = tower.range
 
-      for (const e of this.enemies?.children.entries || []) {
+      for (const e of this.enemies?.getChildren() || []) {
         const d = Phaser.Math.Distance.Between(tower.x, tower.y, (e as Phaser.GameObjects.Sprite).x, (e as Phaser.GameObjects.Sprite).y)
         if (d < closestDist) { closestDist = d; closest = e as Phaser.GameObjects.Arc }
       }

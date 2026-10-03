@@ -236,13 +236,13 @@ class SpaceShooterScene extends Phaser.Scene {
       this.lastFired = time
     }
 
-    this.bullets?.children.entries.forEach((bullet) => {
+    this.bullets?.getChildren().forEach((bullet) => {
       if ((bullet as Phaser.GameObjects.Image).y < -10) {
         bullet.destroy()
       }
     })
 
-    this.enemies?.children.entries.forEach((enemy) => {
+    this.enemies?.getChildren().forEach((enemy) => {
       if ((enemy as Phaser.GameObjects.Image).y > 620) {
         enemy.destroy()
       }

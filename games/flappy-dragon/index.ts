@@ -116,7 +116,7 @@ class FlappyDragonScene extends Phaser.Scene {
   update() {
     if (this.gameOver) return
 
-    this.pipes?.children.entries.forEach(p => {
+    this.pipes?.getChildren().forEach(p => {
       const pipe = p as Phaser.GameObjects.Image
       if (pipe.x < -80) pipe.destroy()
       if (pipe.x < 150 && !this.passed.has(pipe.getData('id'))) {

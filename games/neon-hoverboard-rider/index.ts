@@ -131,8 +131,8 @@ class NeonHoverboardScene extends Phaser.Scene {
       l.x -= (l.getData('speed') as number) * 0.016
       if (l.x < -10) { l.x = 810; l.y = Phaser.Math.Between(0, 600) }
     }
-    this.rails?.children.entries.forEach(r => { if ((r as Phaser.GameObjects.Sprite).x < -150) r.destroy() })
-    this.gaps?.children.entries.forEach(g => { if ((g as Phaser.GameObjects.Sprite).x < -80) g.destroy() })
+    this.rails?.getChildren().forEach(r => { if ((r as Phaser.GameObjects.Sprite).x < -150) r.destroy() })
+    this.gaps?.getChildren().forEach(g => { if ((g as Phaser.GameObjects.Sprite).x < -80) g.destroy() })
   }
 }
 
