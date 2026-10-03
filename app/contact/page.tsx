@@ -4,11 +4,10 @@ import {useState} from "react";
 import {
   Mail,
   MessageSquare,
-  Github,
-  Twitter,
   Send,
   CheckCircle,
 } from "lucide-react";
+import {Github, Twitter} from "@/components/brand-icons";
 import {Button} from "@/components/ui/button";
 
 const CONTACT_CHANNELS = [
