@@ -3,7 +3,7 @@ import { createHmac, randomUUID } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
-import { database } from './database'
+import { query } from './database'
 import { requiredEnv, siteUrl } from './config'
 import { signGuest, verifyGuest } from './guest-token'
 
@@ -96,17 +96,14 @@ export async function guestForWrite(request: Request): Promise<string> {
     request.headers.get('x-forwarded-for')?.split(',').at(-1)?.trim() || 'local'
   const hash = (value: string) =>
     createHmac('sha256', secret).update(value).digest('hex')
-  const client = database({ write: true })
   for (const [key, limit] of [
     [`ip:${hash(address)}`, 120],
     [`guest:${hash(id)}`, 30],
   ] as const) {
-    const { data, error } = await client.rpc('consume_rate_limit', {
-      bucket_key: key,
-      max_requests: limit,
-    })
-    if (error) throw error // Fail closed; a per-process fallback would break global limits.
-    if (!data)
+    const [result] = await query<{ allowed: boolean }>(
+      'SELECT public.consume_rate_limit($1, $2) AS allowed', [key, limit],
+    )
+    if (!result.allowed)
       throw new HttpError(429, 'Too many requests. Try again in a minute.')
   }
   if (!existing)

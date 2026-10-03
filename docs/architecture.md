@@ -1,6 +1,6 @@
 # Application review and scaling design
 
-Vercel + Supabase is the default. AWS is an explicitly selected custom deployment; both use the same application and database contract.
+Vercel + Neon PostgreSQL is the default. AWS is an explicitly selected custom deployment; both use the same application and database contract.
 
 ```mermaid
 flowchart TB
@@ -16,7 +16,7 @@ flowchart TB
   Default --> API[Validated application API]
   ECS1 --> API
   ECS2 --> API
-  API --> Primary[Supabase primary: writes, quotas, recent social reads]
+  API --> Primary[Neon PostgreSQL primary: writes, quotas, recent social reads]
   API -. catalog reads .-> Replica[Optional read endpoints]
 ```
 
@@ -24,7 +24,7 @@ flowchart TB
 
 | Finding | Implemented change |
 | --- | --- |
-| Public unrestricted database writes and localStorage identity spoofing | Server-only mutation APIs, HMAC-signed HTTP-only guest cookie, restricted database grants/policies |
+| Public unrestricted database writes and localStorage identity spoofing | Server-only mutation APIs, HMAC-signed HTTP-only guest cookie, server-held PostgreSQL credentials and parameterized queries |
 | Process-local limits would reset per task/region | Atomic PostgreSQL quota buckets shared by IP and guest; fail closed on errors |
 | Score zero rejected, unchecked scores/inputs, unbounded pagination | Strict Zod schemas, bounded body reader, numeric ranges, query limits and search sanitization |
 | Rating edits/deletes and concurrent aggregates were incorrect | Row-locked incremental aggregates and trigger handling for insert/update/delete |
@@ -42,7 +42,7 @@ flowchart TB
 
 Database-backed HTML and APIs are dynamic with uncached database reads. There is no independent filesystem ISR state to invalidate across AWS tasks. This prioritizes correctness and simple failover. Measure query volume before adding a shared Redis/cache handler and tag coordination; do not turn on per-container ISR and assume global consistency. Static game bundles and framework chunks remain cacheable.
 
-Read replicas are optional and asynchronous. Only catalog reads may use them; post-write social reads use the primary. A slow/unavailable configured read endpoint makes regional readiness fail. None of the AWS infrastructure implements Supabase database promotion or replication provisioning. The shared primary remains the write-availability boundary.
+Read replicas are optional and asynchronous. Only catalog reads may use them; post-write social reads use the primary. A slow/unavailable configured read endpoint makes regional readiness fail. None of the AWS infrastructure implements PostgreSQL database promotion or replication provisioning. The shared primary remains the write-availability boundary.
 
 Guest cookies protect ownership against casual ID spoofing, but clearing cookies creates a new guest. Rate limits and WAF reduce abuse without proving a human identity. Game scores originate in the browser and can be fabricated. Introduce authenticated accounts, moderation and server-verified game sessions before rewards or competitive stakes.
 
@@ -50,4 +50,4 @@ Search uses bounded substring matching and stable ordering by play count plus ID
 
 AWS infrastructure is designed for two regions initially. A third region requires another provider alias/module, CIDR, regional certificate and explicit release stage. Route 53 chooses via DNS resolver location/latency and cached responses; it does not guarantee instant or per-user regional switching. Static origin failover is independent of app-region DNS routing.
 
-The infrastructure has been prepared and locally validated, not cloud-applied. Region failover, IAM permissions in your account, DNS/certificate issuance, provider quotas, notification delivery, live Vercel promotion and actual Supabase restore behavior require environment-specific acceptance checks later.
+The AWS infrastructure has been prepared and locally validated, not cloud-applied. Region failover, IAM permissions in your account, DNS/certificate issuance, provider quotas, notification delivery, and PostgreSQL restore behavior require environment-specific acceptance checks later.

@@ -10,14 +10,14 @@ Defaults are Singapore (`ap-southeast-1`) and Ireland (`eu-west-1`), each with t
 
 - Route 53 latency aliases with target health evaluation route the app hostname to healthy regional ALBs. DNS caching means failover is not instantaneous; if all targets are unhealthy, DNS/ALB can fail open. This is availability routing, not data-residency enforcement.
 - HTTPS ALBs terminate ACM certificates; HTTP redirects to HTTPS. Regional DNS names support direct smoke tests.
-- Fargate tasks have no public IP, run as a non-root user, and receive traffic only from the ALB security group. Each AZ has its own NAT for Supabase/API access.
+- Fargate tasks have no public IP, run as a non-root user, and receive traffic only from the ALB security group. Each AZ has its own NAT for PostgreSQL/API access.
 - WAF provides regional abuse controls; PostgreSQL enforces shared write quotas across all instances. The IP limiter assumes Vercel's sanitized forwarding header or direct ALB ingress that appends the peer to `X-Forwarded-For`; do not add an arbitrary proxy without reviewing this trust boundary.
 - Two private versioned S3 buckets contain the same immutable Next.js chunks. CloudFront uses an origin group with secondary-region failover. Releases upload assets to both buckets before changing app tasks. Old assets and images are deliberately retained for rollback; prune only after your support/rollback window.
-- Supabase remains external to AWS Terraform. Catalog reads can use regional replicas; all mutations, rate limits, readiness contracts, comments, ratings, and leaderboards use the primary. **This is not a multi-writer or automatically promoted database.** Enable backups/PITR and document primary recovery separately.
+- Neon PostgreSQL remains external to AWS Terraform. Catalog reads can use regional replicas; all mutations, rate limits, readiness contracts, comments, ratings, and leaderboards use the primary. **This is not a multi-writer or automatically promoted database.** Enable backups/PITR and document primary recovery separately.
 
 ## Prerequisites
 
-An AWS account (preferably dedicated production), AWS CLI v2 credentials for initial bootstrap, a public Route 53 hosted zone with delegated DNS, Terraform 1.14.7, Docker, a migrated/seeded Supabase project, and a GitHub repository with Actions enabled.
+An AWS account (preferably dedicated production), AWS CLI v2 credentials for initial bootstrap, a public Route 53 hosted zone with delegated DNS, Terraform 1.14.7, Docker, a migrated/seeded Neon PostgreSQL database, and a GitHub repository with Actions enabled.
 
 ## 1. Bootstrap state and CI identity once
 
@@ -40,7 +40,7 @@ The release role is scoped to the application repositories/services/assets and r
 ```sh
 cp infra/aws/terraform.tfvars.example infra/aws/terraform.tfvars
 cp infra/aws/backend.hcl.example infra/aws/backend.hcl
-# Fill the existing zone, hostname, regions, Supabase URL, and state bucket.
+# Fill the existing zone, hostname, regions, and state bucket.
 terraform -chdir=infra/aws init -backend-config=backend.hcl
 terraform -chdir=infra/aws plan -out=production.tfplan
 terraform -chdir=infra/aws apply production.tfplan
@@ -57,8 +57,7 @@ Each region creates a secret named `cursor-cafe/runtime` (or your project prefix
 
 ```json
 {
-  "SUPABASE_ANON_KEY": "public-key",
-  "SUPABASE_SERVICE_ROLE_KEY": "server-only-service-key",
+  "DATABASE_URL": "postgresql://user:password@your-project-pooler.region.aws.neon.tech/neondb?sslmode=verify-full",
   "SESSION_SECRET": "at-least-32-random-characters-identical-in-both-regions"
 }
 ```
@@ -84,8 +83,6 @@ Create `aws-production` and `aws-infrastructure-production` environments. Restri
 | `AWS_TERRAFORM_ROLE_ARN` | Bootstrap infrastructure role output |
 | `TF_STATE_BUCKET` | Bootstrap state bucket output |
 | `AWS_ZONE_ID`, `APP_HOSTNAME` | Existing zone and canonical app hostname |
-| `SUPABASE_URL` | Primary Supabase URL |
-| `SUPABASE_PRIMARY_READ_URL`, `SUPABASE_SECONDARY_READ_URL` | Optional catalog replicas; leave empty initially |
 | `ASSET_BUCKET`, `ASSET_SECONDARY_BUCKET`, `ASSET_PREFIX` | Application Terraform outputs |
 | `IMAGE_HOSTS` | Optional build-time remote image host allowlist |
 | `LAUNCH_ENABLED` | `false` before the first release, then `true` |
@@ -110,11 +107,10 @@ node scripts/smoke.mjs https://REGION.YOUR_HOSTNAME PREVIOUS_COMMIT_SHA REGION
 
 Do not roll back database schemas automatically. Prefer compatible, forward migrations. Preserve old image digests and S3 chunks until rollback support expires.
 
-Health and 5xx alarms publish to regional SNS topics. Confirm subscriptions, configure an external uptime check against the canonical and both regional URLs, exercise an application-region outage, and rehearse a database restore before launch. Container liveness is independent of database readiness, avoiding container restart loops during a database outage. CloudWatch logs retain 30 days. Supabase analytics retention and database backups are separate operational tasks.
+Health and 5xx alarms publish to regional SNS topics. Confirm subscriptions, configure an external uptime check against the canonical and both regional URLs, exercise an application-region outage, and rehearse a database restore before launch. Container liveness is independent of database readiness, avoiding container restart loops during a database outage. CloudWatch logs retain 30 days. Analytics retention and database backups are separate operational tasks.
 
 ## Sources
 
 - [AWS ECS deployment circuit breaker](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-circuit-breaker.html)
 - [Route 53 latency routing and health](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-values-latency.html)
 - [Next.js self-hosting and multiple instances](https://nextjs.org/docs/app/guides/self-hosting)
-- [Supabase read replicas and primary routing](https://supabase.com/docs/guides/platform/read-replicas)

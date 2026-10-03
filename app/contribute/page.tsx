@@ -87,23 +87,11 @@ export default {
             </CardHeader>
             <CardContent className="text-white/90">
               <p className="mb-4">
-                Create a migration script or manually add your game to Supabase:
+                Add metadata to your game module, then seed your local PostgreSQL catalog:
               </p>
               <pre className="bg-black/30 p-4 rounded-lg overflow-x-auto text-sm">
-                <code>{`INSERT INTO games (
-  slug, title, description, thumbnail_url,
-  category, tags, developer_name, package_name, version
-) VALUES (
-  'your-game-slug',
-  'Your Game Title',
-  'Game description',
-  '/games/your-game/thumbnail.png',
-  'Action',
-  ARRAY['arcade', 'fun'],
-  'Your Name',
-  'your-game-name',
-  '1.0.0'
-);`}</code>
+                <code>{`npm run db:migrate
+npm run db:seed`}</code>
               </pre>
             </CardContent>
           </Card>

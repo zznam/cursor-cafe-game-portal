@@ -71,7 +71,7 @@ const FAQ_DATA: FAQItem[] = [
     category: "Technical",
     question: "What technology stack is used?",
     answer:
-      "Cursor Café is built with Next.js (React), Phaser 3 for games, Supabase for the backend database, TypeScript for type safety, and Tailwind CSS for styling. The entire project is deployed on Vercel.",
+      "Cursor Café is built with Next.js (React), Phaser 3 for games, Neon PostgreSQL for the backend database, TypeScript for type safety, and Tailwind CSS for styling. The entire project is deployed on Vercel.",
   },
   {
     category: "Technical",

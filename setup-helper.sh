@@ -1,33 +1,12 @@
 #!/bin/bash
-
-echo "🎮 Game Portal Setup Helper"
-echo "============================"
-echo ""
-
-# Check if .env.local exists
-if [ -f .env.local ]; then
-    echo "✅ .env.local file exists"
-    echo ""
-    echo "Current configuration:"
-    cat .env.local | grep -v "^#" | grep "="
-    echo ""
-else
-    echo "⚠️  .env.local file not found"
-    echo ""
-    echo "Creating .env.local from template..."
-    cp .env.local.example .env.local
-    echo "✅ Created .env.local"
-    echo ""
+set -euo pipefail
+if [ ! -f .env.local ]; then
+  cp .env.local.example .env.local
+  chmod 600 .env.local
+  echo "Created .env.local from template."
 fi
-
-echo "📋 Next Steps:"
-echo ""
-echo "1. Go to https://supabase.com and create a project"
-echo "2. Run the SQL from: supabase/schema.sql"
-echo "3. Run the SQL from: scripts/seed-games.sql (optional)"
-echo "4. Get your Project URL and anon key from Supabase"
-echo "5. Update .env.local with your credentials"
-echo ""
-echo "Then run: npm run dev"
-echo ""
-echo "Need help? Check SETUP_INSTRUCTIONS.md"
+echo "1. Create a free Neon project at https://console.neon.tech"
+echo "2. Set DATABASE_URL, SESSION_SECRET, and SITE_URL in .env.local"
+echo "3. Run npm run db:migrate and npm run db:seed"
+echo "4. Run npm run dev"
+echo "See DEPLOYMENT.md for database migration and Vercel configuration."

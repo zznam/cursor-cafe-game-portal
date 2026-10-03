@@ -212,7 +212,7 @@ export default function RootLayout({
               <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p className="text-xs text-white/40">
                   &copy; 2026 Cursor Café. Built with Next.js, Phaser &amp;
-                  Supabase.
+                  Neon.
                 </p>
                 <p className="text-xs text-white/40 flex items-center gap-1">
                   Made with{" "}

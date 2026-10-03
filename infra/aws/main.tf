@@ -7,8 +7,6 @@ module "primary" {
   manage_shared_certificate_dns = true
   hostname                      = var.hostname
   zone_id                       = var.zone_id
-  supabase_url                  = var.supabase_url
-  read_url                      = var.primary_read_url
   image_hosts                   = var.image_hosts
   launch_enabled                = var.launch_enabled
   min_capacity                  = var.min_capacity
@@ -24,8 +22,6 @@ module "secondary" {
   manage_shared_certificate_dns = false
   hostname                      = var.hostname
   zone_id                       = var.zone_id
-  supabase_url                  = var.supabase_url
-  read_url                      = var.secondary_read_url
   image_hosts                   = var.image_hosts
   launch_enabled                = var.launch_enabled
   min_capacity                  = var.min_capacity

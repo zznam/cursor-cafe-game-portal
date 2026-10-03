@@ -1,27 +1,41 @@
 import 'server-only'
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/database'
-import { databaseUrl, requiredEnv } from './config'
+import { Pool, types, type QueryResultRow } from 'pg'
+import { attachDatabasePool } from '@vercel/functions'
+import { databaseUrl } from './config'
 
-// No cookies, session persistence, or process-local user state. Each operation is bounded.
-export function database({ write = false, primary = false } = {}) {
-  const key = write
-    ? requiredEnv('SUPABASE_SERVICE_ROLE_KEY')
-    : process.env.SUPABASE_ANON_KEY ||
-      requiredEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY')
-  return createClient<Database>(databaseUrl(!write && !primary), key, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
-    global: {
-      fetch: (input, init) =>
-        fetch(input, {
-          ...init,
-          cache: 'no-store',
-          signal: AbortSignal.timeout(5000),
-        }),
-    },
-  })
+const pools = new Map<string, Pool>()
+
+// Use Neon's pooled URL. Keep pools small and close idle connections before
+// Vercel suspends a function. Database credentials remain on the server.
+export function database({ readOnly = false } = {}) {
+  const connectionString = databaseUrl(readOnly)
+  let pool = pools.get(connectionString)
+  if (!pool) {
+    pool = new Pool({
+      connectionString,
+      max: 2,
+      idleTimeoutMillis: 5000,
+      connectionTimeoutMillis: 10000,
+      statement_timeout: 10000,
+      types: {
+        getTypeParser: (oid, format) => oid === 1184 && format !== 'binary'
+          ? (value: string) => new Date(value).toISOString()
+          : types.getTypeParser(oid, format),
+      },
+    })
+    pool.on('error', (error) => console.error('database_pool_error', {
+      code: (error as Error & { code?: string }).code,
+    }))
+    attachDatabasePool(pool)
+    pools.set(connectionString, pool)
+  }
+  return pool
+}
+
+export async function query<Row extends QueryResultRow = QueryResultRow>(
+  text: string,
+  values: unknown[] = [],
+  options: { readOnly?: boolean } = {},
+): Promise<Row[]> {
+  return (await database(options).query<Row>(text, values)).rows
 }

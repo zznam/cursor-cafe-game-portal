@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: supabase/setup-cli@v1
+      - uses: actions/setup-node@v7
         with:
-          version: 2.75.0
-      - name: Preview and apply committed migrations
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Apply committed PostgreSQL migrations
         env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: |
-          supabase db push --db-url "$SUPABASE_DB_URL" --dry-run
-          supabase db push --db-url "$SUPABASE_DB_URL" --yes
+          DATABASE_MIGRATION_URL: ${{ secrets.DATABASE_MIGRATION_URL }}
+        run: npm run db:migrate

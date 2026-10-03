@@ -25,9 +25,6 @@ jobs:
       TF_VAR_secondary_region: ${{ vars.AWS_SECONDARY_REGION }}
       TF_VAR_zone_id: ${{ vars.AWS_ZONE_ID }}
       TF_VAR_hostname: ${{ vars.APP_HOSTNAME }}
-      TF_VAR_supabase_url: ${{ vars.SUPABASE_URL }}
-      TF_VAR_primary_read_url: ${{ vars.SUPABASE_PRIMARY_READ_URL }}
-      TF_VAR_secondary_read_url: ${{ vars.SUPABASE_SECONDARY_READ_URL }}
       TF_VAR_launch_enabled: ${{ vars.LAUNCH_ENABLED || 'false' }}
       TF_VAR_alarm_email: ${{ vars.ALARM_EMAIL }}
     steps:

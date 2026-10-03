@@ -10,7 +10,7 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 resource "aws_secretsmanager_secret" "app" {
   name                    = "${var.project}/runtime"
-  description             = "JSON: SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SESSION_SECRET. Values are set outside Terraform."
+  description             = "JSON: DATABASE_URL, SESSION_SECRET. Values are set outside Terraform."
   recovery_window_in_days = 30
 }
 resource "aws_iam_role" "execution" {
@@ -55,11 +55,9 @@ resource "aws_ecs_task_definition" "app" {
     environment = [
       { name = "AWS_REGION", value = var.region },
       { name = "SITE_URL", value = "https://${var.hostname}" },
-      { name = "SUPABASE_URL", value = var.supabase_url },
-      { name = "SUPABASE_READ_URL", value = var.read_url },
       { name = "IMAGE_HOSTS", value = var.image_hosts }
     ],
-    secrets          = [for key in ["SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "SESSION_SECRET"] : { name = key, valueFrom = "${aws_secretsmanager_secret.app.arn}:${key}::" }],
+    secrets          = [for key in ["DATABASE_URL", "SESSION_SECRET"] : { name = key, valueFrom = "${aws_secretsmanager_secret.app.arn}:${key}::" }],
     healthCheck      = { command = ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""], interval = 30, timeout = 5, retries = 3, startPeriod = 30 },
     logConfiguration = { logDriver = "awslogs", options = { awslogs-group = aws_cloudwatch_log_group.app.name, awslogs-region = var.region, awslogs-stream-prefix = "app" } }
   }])
