@@ -21,7 +21,7 @@ jobs:
       ((github.event_name == 'workflow_dispatch' && needs.checks.result == 'success') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_repository.id == github.repository_id && vars.VERCEL_CI_DEPLOY == 'true'))
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON((github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && vars.LOCAL_RUNNER_LABELS || '["ubuntu-latest"]') }}
     environment: vercel-production
     env:
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
