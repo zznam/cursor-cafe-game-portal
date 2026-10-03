@@ -35,7 +35,7 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ vars.AWS_PRIMARY_REGION }}
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - name: Authenticate regional image registries
         run: |
           account=$(aws sts get-caller-identity --query Account --output text)
