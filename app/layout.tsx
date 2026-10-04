@@ -1,6 +1,7 @@
 import type {Metadata} from "next";
 import {Outfit} from "next/font/google";
 import "./globals.css";
+import "./cafe.css";
 import Link from "next/link";
 import {Gamepad2, Coffee, Heart} from "lucide-react";
 import {Github, Twitter} from "@/components/brand-icons";

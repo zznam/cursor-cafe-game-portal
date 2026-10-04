@@ -1,0 +1,28 @@
+/* Game controls stay outside the canvas and remain usable at phone sizes. */
+.game-shell { display: flex; flex-direction: column; min-width: 0; }
+.game-shell:fullscreen { overflow: auto; max-width: none; padding: 12px; }
+.game-shell:fullscreen .game-viewport { width: min(100%, 900px); margin: auto; max-height: 75dvh; }
+.game-viewport { position: relative; width: 100%; }
+.game-scroll { position: absolute; inset: 0; overscroll-behavior: contain; }
+.game-canvas { position: absolute; inset: 0; outline: none; }
+.game-canvas canvas { display: block; touch-action: none; }
+.game-overlay { position: absolute; inset: 0; z-index: 20; background: #111827f5; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; text-align: center; overflow: auto; }
+.cafe-control { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid #a78bfa66; background: #292334; color: #fff6df; font-size: 14px; font-weight: 600; touch-action: manipulation; user-select: none; cursor: pointer; }
+.cafe-control:hover { background: #463750; }
+.cafe-control:focus-visible { outline: 3px solid #fbbf24; outline-offset: 2px; }
+.cafe-control:disabled, fieldset:disabled .cafe-control { opacity: .45; cursor: default; }
+.cafe-control.primary { background: #70452e; border-color: #b88661; }
+.touch-controls .cafe-control { touch-action: none; }
+.touch-controls { display: flex; flex-wrap: wrap; gap: 6px; }
+.pong-controls { display: grid; grid-template-columns: repeat(4, 1fr); }
+.pong-controls button:nth-of-type(2) { margin-right: 12px; }
+.cafe-panel { border: 1px solid #e7c9a1; background: #fff6df; color: #52352b; border-radius: 20px; padding: clamp(20px, 4vw, 36px); }
+.discovery-field { display: block; width: 100%; min-height: 44px; background: #241e33; color: white; border: 1px solid #ffffff40; padding: 10px; border-radius: 10px; }
+select.discovery-field { appearance: none; padding-right: 36px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23fff6df' stroke-width='2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+.discovery-field:focus-visible { outline: 3px solid #fbbf24; outline-offset: 2px; }
+@media (max-width: 640px) { .game-shell .cafe-control { padding: 8px; } }
+@media (prefers-reduced-motion: reduce) { .game-shell *, .cafe-panel * { scroll-behavior: auto !important; transition: none !important; } }
+@media (orientation: landscape) and (max-height: 600px) {
+  body:has(.game-shell canvas) header { position: static; }
+  .game-viewport, .game-shell:fullscreen .game-viewport { max-height: 60dvh; }
+}
