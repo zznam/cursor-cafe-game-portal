@@ -2,6 +2,22 @@ export const GAME_CONTROLS: Record<
   string,
   { title: string; controls: string[]; tips?: string[] }
 > = {
+  'coffee-connections': {
+    title: 'Coffee Connections',
+    controls: ['Connect the machine on the left to the cup on the right.', 'Tap a pipe to rotate it, or select with arrows and press Enter.', 'No timer. Fewer rotations gives a better result.'],
+  },
+  'pastry-blocks': {
+    title: 'Pastry Blocks',
+    controls: ['Fill complete rows or columns to clear space on the tray.', 'Drag the pastry onto the board, or tap its top-left destination.', 'Arrows + Enter also work. The round ends when the next piece cannot fit.'],
+  },
+  'cup-stack': {
+    title: 'Cup Stack',
+    controls: ['Tap or press Space to start, then again to place each layer.', 'Keep the moving layer aligned with the tower. Overhang falls away.', 'A miss ends the round. Build higher and preserve more width.'],
+  },
+  'sugar-orbit': {
+    title: 'Sugar Orbit',
+    controls: ['Tap or press Space to start orbiting the cup.', 'Tap or press Space again to reverse direction.', 'Dodge the approaching sugar cubes. A collision ends the round.'],
+  },
   breakout: {
     title: 'Breakout Classic',
     controls: ['← → Arrow Keys to move paddle'],

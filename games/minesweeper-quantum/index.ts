@@ -57,7 +57,7 @@ class MinesweeperScene extends Phaser.Scene {
       const row = Math.floor((pointer.y - this.offsetY) / this.cellSize)
       if (col < 0 || col >= this.cols || row < 0 || row >= this.rows) return
 
-      if (pointer.rightButtonDown()) {
+      if (pointer.rightButtonDown() || this.registry.get('touchFlag')) {
         this.toggleFlag(row, col)
       } else {
         if (this.firstClick) {
@@ -208,6 +208,7 @@ export default {
     return new Phaser.Game({
       type: Phaser.AUTO,
       parent: containerId,
+      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
       width: 800,
       height: 600,
       backgroundColor: '#0a0a1e',

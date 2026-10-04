@@ -56,7 +56,7 @@ export default async function GamePage({
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 min-w-0 space-y-6">
           <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
               <div>
@@ -136,11 +136,12 @@ export default async function GamePage({
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 md:p-6 border border-white/20">
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-1 sm:p-4 md:p-6 border border-white/20">
             <GamePlayer
               packageName={game.packageName}
               gameId={game.id}
               gameSlug={game.slug}
+              category={game.category}
               title={controlsTitle}
               controls={controlsList}
             />

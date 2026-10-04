@@ -1,6 +1,7 @@
+import type { GameRuntime } from '@/lib/game-runtime'
 
 import type { Json } from '@/types/database'
-import * as Phaser from 'phaser'
+import type * as Phaser from 'phaser'
 
 export interface GameMetadata {
   id: string
@@ -9,6 +10,9 @@ export interface GameMetadata {
   description: string
   thumbnailUrl: string
   bannerUrl?: string
+  mood?: string
+  sessionMinutes?: number
+  touch?: boolean
   category: string
   tags: string[]
   developerName: string
@@ -31,7 +35,7 @@ export interface GameConfig {
 export interface PhaserGameModule {
   default: {
     metadata: Omit<GameMetadata, 'id' | 'playCount' | 'averageRating' | 'totalRatings' | 'createdAt' | 'updatedAt'>
-    createGame: (containerId: string) => Phaser.Game
+    createGame: (containerId: string, runtime?: GameRuntime) => Phaser.Game
   }
 }
 

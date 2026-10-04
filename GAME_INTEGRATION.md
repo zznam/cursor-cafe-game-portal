@@ -339,7 +339,7 @@ export default {
 
 1. **Test locally**: Run `npm run dev` and play your game
 2. **Check console**: Look for analytics events in browser console
-3. **Verify database**: Check Supabase for analytics and leaderboard entries
+3. **Verify database**: Check PostgreSQL for analytics and leaderboard entries
 4. **Test error cases**: Try submitting with invalid data
 
 ## Troubleshooting
@@ -347,13 +347,13 @@ export default {
 ### Scores not appearing in leaderboard
 
 - Check game ID matches database
-- Verify Supabase connection
+- Verify server-side database connectivity and `/api/health/ready`
 - Check browser console for errors
 
 ### Analytics not tracking
 
 - Ensure environment variables are set
-- Check Supabase RLS policies
+- Check API responses and server-side database permissions
 - Verify session ID generation
 
 ### User ID issues
@@ -372,3 +372,31 @@ For integration help:
 ---
 
 Happy integrating! 🎮
+
+## Café runtime (v1)
+
+New games may accept a second, optional `GameRuntime` argument in `createGame`.
+Existing one-argument factories remain supported. The runtime contains `daily`
+(date, stable seed, rules version and practice status), scoped `input` actions,
+`onReady`, `onInteraction`, `onResult`, and a `soundEnabled` preference getter.
+Call `onInteraction` only when gameplay begins and `onResult` once per terminal
+round. The player owns restarts, saving, pause, sound preferences and result sharing.
+Never read React hooks inside Phaser scenes.
+
+Results have a nonnegative numeric `score`, optional `secondary` tie-breaker and a
+short readable `label`. Coffee Connections uses lower scores; the other café games
+use higher scores, then higher secondary values. Arcade scenes advance in fixed
+1/60-second steps. Date-based seeds must never use unseeded randomness.
+
+Record discovery and input capabilities in `lib/game-capabilities.json`. The
+catalog seeder reads static metadata without importing Phaser, and refreshes
+catalog descriptions while retaining IDs, activity and editorial featured flags.
+Use `npm run db:migrate` followed by `npm run db:seed` when installing this release.
+
+Touch controls dispatch scoped key actions to existing Phaser listeners. Keep
+keyboard targets attached to the player, release held inputs on blur/cancellation,
+and refresh scale bounds when the canvas scrolls or resizes. Touch buttons live
+outside the canvas. The player emits `INPUT_CANCEL_EVENT` on scene input plugins
+before resetting pointers; games with drag or charge state must discard pending
+actions on this event and on `pointerupoutside`. Minesweeper reads `touchFlag` from its game registry; dense
+boards use explicit play/pan modes. Test real touch, including simultaneous inputs.

@@ -16,6 +16,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
+    { name: 'webkit-mobile', use: { ...devices['iPhone 13'], browserName: 'webkit' }, testMatch: /cafe-features|touch-games/ },
     {
       name: 'chromium-desktop',
       use: { ...devices['Desktop Chrome'] },

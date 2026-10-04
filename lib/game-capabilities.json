@@ -1,0 +1,396 @@
+{
+  "2048": {
+    "mood": "Focused",
+    "sessionMinutes": 5,
+    "touch": true,
+    "keys": [
+      "ArrowUp",
+      "ArrowLeft",
+      "ArrowDown",
+      "ArrowRight"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "asteroid-sweeper": {
+    "mood": "Energetic",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [
+      "ArrowUp",
+      "ArrowLeft",
+      "ArrowDown",
+      "ArrowRight",
+      "Space"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "breakout": {
+    "mood": "Focused",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [
+      "ArrowLeft",
+      "ArrowRight"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "drift-king-2d": {
+    "mood": "Energetic",
+    "sessionMinutes": 5,
+    "touch": true,
+    "keys": [
+      "ArrowUp",
+      "ArrowLeft",
+      "ArrowDown",
+      "ArrowRight",
+      "Space"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "dungeon-crawler-miner": {
+    "mood": "Focused",
+    "sessionMinutes": 5,
+    "touch": true,
+    "keys": [
+      "ArrowUp",
+      "ArrowLeft",
+      "ArrowDown",
+      "ArrowRight"
+    ],
+    "dense": true,
+    "width": 800,
+    "height": 600
+  },
+  "endless-highway-rider": {
+    "mood": "Energetic",
+    "sessionMinutes": 2,
+    "touch": true,
+    "keys": [
+      "ArrowLeft",
+      "ArrowRight"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "flappy-bird": {
+    "mood": "Energetic",
+    "sessionMinutes": 2,
+    "touch": true,
+    "keys": [
+      "Space"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "flappy-dragon": {
+    "mood": "Energetic",
+    "sessionMinutes": 2,
+    "touch": true,
+    "keys": [
+      "Space"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "gravity-flip-grappler": {
+    "mood": "Energetic",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [
+      "ArrowLeft",
+      "ArrowRight",
+      "Space"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "hexagon-match-3": {
+    "mood": "Relaxed",
+    "sessionMinutes": 5,
+    "touch": true,
+    "keys": [],
+    "dense": true,
+    "width": 800,
+    "height": 600
+  },
+  "infinite-runner": {
+    "mood": "Energetic",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [
+      "Space"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "maze-runner-3d": {
+    "mood": "Focused",
+    "sessionMinutes": 5,
+    "touch": true,
+    "keys": [
+      "ArrowUp",
+      "ArrowLeft",
+      "ArrowDown",
+      "ArrowRight"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "memory-match": {
+    "mood": "Relaxed",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [],
+    "dense": true,
+    "width": 800,
+    "height": 600
+  },
+  "mini-golf-course": {
+    "mood": "Relaxed",
+    "sessionMinutes": 10,
+    "touch": true,
+    "keys": [],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "minesweeper-quantum": {
+    "mood": "Focused",
+    "sessionMinutes": 10,
+    "touch": true,
+    "keys": [],
+    "dense": true,
+    "width": 800,
+    "height": 600
+  },
+  "neon-hoverboard-rider": {
+    "mood": "Energetic",
+    "sessionMinutes": 2,
+    "touch": true,
+    "keys": [
+      "Space"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "neon-pong-pvp": {
+    "mood": "Energetic",
+    "sessionMinutes": 5,
+    "touch": true,
+    "keys": [
+      "w",
+      "s",
+      "ArrowUp",
+      "ArrowDown"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "neon-snake": {
+    "mood": "Focused",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [
+      "ArrowUp",
+      "ArrowLeft",
+      "ArrowDown",
+      "ArrowRight"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "penalty-shootout-pro": {
+    "mood": "Focused",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "pixel-ninja-dash": {
+    "mood": "Energetic",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [
+      "Space",
+      "x"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "platform-jumper": {
+    "mood": "Energetic",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [
+      "ArrowLeft",
+      "ArrowRight"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "retro-hoops": {
+    "mood": "Focused",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "snake": {
+    "mood": "Focused",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [
+      "ArrowUp",
+      "ArrowLeft",
+      "ArrowDown",
+      "ArrowRight"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "space-shooter": {
+    "mood": "Energetic",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [
+      "ArrowLeft",
+      "ArrowRight",
+      "Space"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "sudoku-zen": {
+    "mood": "Relaxed",
+    "sessionMinutes": 10,
+    "touch": true,
+    "keys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "Backspace"
+    ],
+    "dense": true,
+    "width": 800,
+    "height": 600
+  },
+  "word-scramble-rush": {
+    "mood": "Focused",
+    "sessionMinutes": 1,
+    "touch": true,
+    "keys": [
+      "Q",
+      "W",
+      "E",
+      "R",
+      "T",
+      "Y",
+      "U",
+      "I",
+      "O",
+      "P",
+      "A",
+      "S",
+      "D",
+      "F",
+      "G",
+      "H",
+      "J",
+      "K",
+      "L",
+      "Z",
+      "X",
+      "C",
+      "V",
+      "B",
+      "N",
+      "M",
+      "Backspace",
+      "Enter",
+      "ArrowRight"
+    ],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "tower-defense-lite": {
+    "mood": "Focused",
+    "sessionMinutes": 10,
+    "touch": true,
+    "keys": [],
+    "dense": false,
+    "width": 800,
+    "height": 600
+  },
+  "coffee-connections": {
+    "mood": "Relaxed",
+    "sessionMinutes": 3,
+    "touch": true,
+    "keys": [],
+    "dense": false,
+    "width": 600,
+    "height": 640
+  },
+  "pastry-blocks": {
+    "mood": "Focused",
+    "sessionMinutes": 5,
+    "touch": true,
+    "keys": [],
+    "dense": false,
+    "width": 600,
+    "height": 720
+  },
+  "cup-stack": {
+    "mood": "Focused",
+    "sessionMinutes": 2,
+    "touch": true,
+    "keys": [
+      "Space"
+    ],
+    "dense": false,
+    "width": 600,
+    "height": 640
+  },
+  "sugar-orbit": {
+    "mood": "Energetic",
+    "sessionMinutes": 2,
+    "touch": true,
+    "keys": [
+      "Space"
+    ],
+    "dense": false,
+    "width": 600,
+    "height": 640
+  }
+}

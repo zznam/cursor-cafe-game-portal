@@ -4,6 +4,20 @@ A Next.js 16 / React 19 portal for Phaser browser games, with search, category b
 
 **Vercel + Neon PostgreSQL is the default deployment.** Multi-region AWS is an optional custom deployment, enabled only by explicitly running its workflows. No AWS account is needed for development or the normal Vercel path.
 
+## Play at the Café
+
+- 31 games with touch controls, pause/restart, and keyboard or mouse support.
+- Four café originals: Coffee Connections, Pastry Blocks, Cup Stack, and Sugar Orbit.
+- `/daily`: a shared seeded challenge rotating at midnight UTC, unlimited retries,
+  personal bests, and player-initiated result sharing. Past dates are practice.
+- `/passport`: game stamps, eight milestone badges, personal bests, and daily history.
+  Progress stays in this browser; clearing browser data removes it.
+- `/games`: mood, estimated session length, device support, and category filters,
+  plus a “Surprise me” choice across the complete matching catalog.
+
+Existing installations must run both the additive migrations and catalog seed
+before deploying this release. Seeding retains game IDs and existing player activity.
+
 ## Local development
 
 Use Node.js 22.12 or newer within Node 22.
@@ -23,7 +37,7 @@ npm run lint
 npm run type-check
 npm run test:coverage
 npm run build
-npx playwright install chromium
+npx playwright install chromium webkit
 E2E_MOCK_DATABASE=true npm run test:e2e
 ```
 
@@ -47,4 +61,4 @@ Browser tests use the built application and a local PostgreSQL fixture, with no 
 | `infra/aws` | Optional multi-region AWS infrastructure |
 | `.github/workflows` | Quality gates, default Vercel deployment, opt-in AWS and database workflows |
 
-For game contributions, see [CONTRIBUTING.md](CONTRIBUTING.md) and [GAME_INTEGRATION.md](GAME_INTEGRATION.md). Game modules continue to use `useGameApi` for scores and analytics; no database credentials belong in a game or browser component.
+For game contributions, see [CONTRIBUTING.md](CONTRIBUTING.md) and [GAME_INTEGRATION.md](GAME_INTEGRATION.md). New games can report interaction and result events through `GameRuntime`; existing `useGameApi` integrations remain available for scores and analytics. No database credentials belong in a game or browser component.

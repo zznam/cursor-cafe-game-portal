@@ -19,7 +19,9 @@ npm run dev
 
 `db:migrate` applies SQL under `database/migrations` in one transaction with an advisory lock and checksum history. Repeated runs skip applied migrations; edited applied files are rejected. Use a fresh database for the initial PostgreSQL migration. `DATABASE_MIGRATION_URL` can hold a direct connection string for migration/seed commands; otherwise they use `DATABASE_URL`.
 
-`db:seed` inserts all 27 game listings from the bundled modules. It retains existing catalog rows and does not manufacture ratings, scores, or play counts. Games without a bundled thumbnail use a shared placeholder. Both commands load `.env.local`; they do not print credentials.
+`db:seed` inserts listings for the full bundled catalog and refreshes descriptive and discovery metadata on existing games. It preserves game IDs, scores, ratings, comments, play counts, and existing featured choices. Games without a bundled thumbnail use a shared placeholder. Both commands load `.env.local`; they do not print credentials.
+
+For an existing deployment, apply reviewed additive migrations before deploying code that queries the new fields. Refresh the catalog after the new game bundles are deployed, then verify `/api/health/ready`, the catalog, and the new game pages.
 
 ### Existing Supabase data
 
