@@ -7,6 +7,12 @@ test('discovery filters persist in the URL and random selection respects the com
   request,
 }) => {
   await page.goto('/games')
+  // A production asset regression once dropped the shared café stylesheet.
+  const mood = page.getByLabel('Mood', { exact: true })
+  await expect(mood).toHaveCSS('display', 'block')
+  expect((await mood.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+  const find = page.getByRole('button', { name: 'Find games', exact: true })
+  expect((await find.boundingBox())!.height).toBeGreaterThanOrEqual(44)
   await page.getByLabel('Mood', { exact: true }).selectOption('Relaxed')
   await page.getByLabel('Session length', { exact: true }).selectOption('quick')
   await page.getByLabel('Input support', { exact: true }).selectOption('true')
