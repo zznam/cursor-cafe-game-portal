@@ -105,10 +105,17 @@ test('tabs merge independent stamps and storage failures keep the game usable', 
     page.getByText('0 stamps collected · 0 of 8 badges'),
   ).toBeVisible()
   const other = await context.newPage()
+  await other.bringToFront()
   await other.goto('/games/2048')
   await other.getByRole('button', { name: '▶ Play', exact: true }).click()
   await expect(other.locator('canvas')).toBeVisible()
+  // Phaser inserts its canvas before boot completes and the player takes focus.
+  await expect(other.getByText('Loading game…', { exact: true })).toHaveCount(0)
+  await expect(
+    other.getByRole('group', { name: '2048 game', exact: true }),
+  ).toBeFocused()
   await other.keyboard.press('ArrowLeft')
+  await page.bringToFront()
   await expect(
     page.getByText('1 stamps collected · 1 of 8 badges'),
   ).toBeVisible()

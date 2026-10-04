@@ -44,8 +44,8 @@ reflow, Sudoku/word/mine controls, cancelled sports gestures, and real
 simultaneous contacts for Pong. Existing
 keyboard-focus and runtime tests remain release requirements. Browser CI runs in
 a separate GitHub-hosted Linux job with streamed per-test output, a 30-minute job
-limit, and an uploaded HTML report. Unit/SQL and build checks retain the configured
-self-hosted runner preference.
+limit, and an uploaded HTML report. Unit/SQL and build checks also use GitHub-hosted
+Linux, so release validation does not depend on an available personal runner.
 
 Progress is local to this browser. Immutable run-start and result records use
 `cafe:v1:activity:*` storage keys, so independent tabs cannot overwrite one another.
@@ -71,4 +71,5 @@ unavailable storage falls back to session memory with a notice. No account, clou
   Canvas gameplay also received visual, keyboard and real touch-event checks.
 
 These checks use browser device emulation and an isolated local SQL fixture.
-Production migrations, seeding and deployment have not been performed.
+At the time of this local validation, production migrations, seeding and deployment
+had not been performed. The release PR records subsequent CI and rollout results.
