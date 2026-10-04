@@ -83,7 +83,7 @@ test.describe('Responsive Layouts', () => {
     test('full navigation visible', async ({ page }) => {
       await page.goto('/')
 
-      await expect(page.getByRole('link', { name: 'Home' })).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Home', exact: true })).toBeVisible()
       await expect(
         page.getByRole('link', { name: 'All Games' }).first(),
       ).toBeVisible()

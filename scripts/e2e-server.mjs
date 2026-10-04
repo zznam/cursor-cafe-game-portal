@@ -1,13 +1,13 @@
 // Run the actual app against ephemeral PostgreSQL. No production credentials.
 import http from 'node:http'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { PGlite } from '@electric-sql/pglite'
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket'
 import { catalogRows, seedCatalog } from './catalog-seed.mjs'
 const baseURL = new URL(process.env.E2E_BASE_URL || 'http://localhost:3000')
 const db = await PGlite.create()
-await db.exec(readFileSync('database/migrations/20261003000100_postgres.sql', 'utf8'))
+for (const name of readdirSync('database/migrations').filter(name => name.endsWith('.sql')).sort()) await db.exec(readFileSync(`database/migrations/${name}`, 'utf8'))
 await seedCatalog(db)
 // Deterministic ordering/IDs keep existing browser fixtures stable.
 for (const [index, row] of catalogRows().entries()) {

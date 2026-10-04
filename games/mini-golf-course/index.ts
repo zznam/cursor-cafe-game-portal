@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { INPUT_CANCEL_EVENT } from '@/lib/game-runtime'
 
 class MiniGolfScene extends Phaser.Scene {
   private ball?: Phaser.Physics.Arcade.Image
@@ -34,6 +35,12 @@ class MiniGolfScene extends Phaser.Scene {
 
     this.setupHole(this.holeNum)
 
+    const cancelAim = () => {
+      this.dragging = false
+      this.aimLine?.clear()
+    }
+    this.input.on(INPUT_CANCEL_EVENT, cancelAim)
+    this.input.on('pointerupoutside', cancelAim)
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       if (this.gameOver) { this.scene.restart(); return }
       if (!this.ball || this.isBallMoving()) return
@@ -55,6 +62,7 @@ class MiniGolfScene extends Phaser.Scene {
       this.aimLine?.strokePath()
     })
     this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
+      if (p.wasCanceled) { cancelAim(); return }
       if (!this.dragging || !this.ball) return
       this.dragging = false
       this.aimLine?.clear()
@@ -183,6 +191,7 @@ export default {
     return new Phaser.Game({
       type: Phaser.AUTO,
       parent: containerId,
+      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
       width: 800,
       height: 560,
       backgroundColor: '#1a3322',

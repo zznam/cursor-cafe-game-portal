@@ -18,6 +18,9 @@ export interface Database {
           description: string
           thumbnail_url: string
           banner_url: string | null
+          mood: string | null
+          session_minutes: number | null
+          touch: boolean
           category: string
           tags: string[]
           developer_name: string

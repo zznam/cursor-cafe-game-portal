@@ -9,6 +9,9 @@ const pageNumber = (fallback: number, max: number) =>
 export const gamesQuerySchema = z.object({
   limit: pageNumber(24, 100).refine((value) => value > 0),
   offset: pageNumber(0, 10000),
+  mood: z.enum(['Relaxed', 'Focused', 'Energetic']).optional(),
+  duration: z.enum(['quick', 'short', 'long']).optional(),
+  touch: z.enum(['true', 'false']).transform(value => value === 'true').optional(),
   category: z.string().trim().max(40).optional(),
   featured: z
     .enum(['true', 'false'])

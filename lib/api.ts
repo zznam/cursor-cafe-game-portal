@@ -19,6 +19,9 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
 }
 export function getGames(
   options: {
+    mood?: 'Relaxed' | 'Focused' | 'Energetic'
+    duration?: 'quick' | 'short' | 'long'
+    touch?: boolean
     category?: string
     featured?: boolean
     limit?: number

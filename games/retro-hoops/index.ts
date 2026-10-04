@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { INPUT_CANCEL_EVENT } from '@/lib/game-runtime'
 
 class RetroHoopsScene extends Phaser.Scene {
   private ball?: Phaser.Physics.Arcade.Image
@@ -56,11 +57,19 @@ class RetroHoopsScene extends Phaser.Scene {
     this.powerBg = this.add.rectangle(200, 500, 100, 12, 0x333333)
     this.powerBar = this.add.rectangle(152, 500, 0, 10, 0x00ff00)
 
+    const cancelCharge = () => {
+      this.charging = false
+      this.power = 0
+      this.powerBar?.setDisplaySize(0, 10)
+    }
+    this.input.on(INPUT_CANCEL_EVENT, cancelCharge)
+    this.input.on('pointerupoutside', cancelCharge)
     this.input.on('pointerdown', () => {
       if (this.gameOver) { this.scene.restart(); return }
       if (!this.shooting) { this.charging = true; this.power = 0 }
     })
-    this.input.on('pointerup', () => {
+    this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (pointer.wasCanceled) { cancelCharge(); return }
       if (this.charging && !this.shooting) {
         this.charging = false
         this.shoot()
@@ -176,6 +185,7 @@ export default {
     return new Phaser.Game({
       type: Phaser.AUTO,
       parent: containerId,
+      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
       width: 800,
       height: 600,
       backgroundColor: '#1a0a2e',

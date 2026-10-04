@@ -7,7 +7,7 @@ test.describe('Game Player', () => {
   })
 
   test('game player component renders', async ({ page }) => {
-    const playerContainer = page.locator('.aspect-video').first()
+    const playerContainer = page.locator('.game-shell')
     await expect(playerContainer).toBeVisible({ timeout: 10000 })
   })
 

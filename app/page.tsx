@@ -1,4 +1,4 @@
-import {getGames} from "@/lib/server/catalog";
+import {getGames, countGames} from "@/lib/server/catalog";
 import {GameCard} from "@/components/game-card";
 import {RecentlyPlayed} from "@/components/recently-played";
 import {Button} from "@/components/ui/button";
@@ -18,8 +18,8 @@ import {GAME_CATEGORIES} from "@/types/game";
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [featuredGames, popularGames] = await Promise.all([
-    getGames({ featured: true, limit: 6 }), getGames({ limit: 8 }),
+  const [featuredGames, popularGames, gameCount] = await Promise.all([
+    getGames({ featured: true, limit: 6 }), getGames({ limit: 100 }), countGames(),
   ]);
 
   return (
@@ -45,7 +45,7 @@ export default async function HomePage() {
           Amazing Games
         </h1>
         <p className="text-lg md:text-xl text-white/70 mb-8 max-w-2xl mx-auto leading-relaxed">
-          Grab a virtual coffee and dive into 27+ handcrafted browser games.
+          Grab a virtual coffee and dive into {gameCount} handcrafted browser games.
           Compete on leaderboards, rate your favorites, and discover something
           new every day.
         </p>
@@ -75,7 +75,7 @@ export default async function HomePage() {
           <div className="flex items-center gap-2 text-white/60">
             <Gamepad2 className="w-5 h-5 text-purple-400" />
             <span className="text-sm font-medium">
-              <strong className="text-white">27+</strong> Games
+              <strong className="text-white">{gameCount}</strong> Games
             </span>
           </div>
           <div className="flex items-center gap-2 text-white/60">
@@ -113,6 +113,10 @@ export default async function HomePage() {
         </section>
       )}
 
+      <section className="grid md:grid-cols-2 gap-5 mb-12">
+        <Link href="/daily" className="cafe-panel block hover:shadow-lg"><p className="text-sm uppercase tracking-widest mb-2">Fresh every day</p><h2 className="text-3xl font-bold mb-3">Your daily brew</h2><p>One shared challenge. As many tries as you like. Come find your personal best.</p><span className="inline-block mt-4 font-bold">Play today’s challenge →</span></Link>
+        <Link href="/passport" className="cafe-panel block hover:shadow-lg"><p className="text-sm uppercase tracking-widest mb-2">Make yourself at home</p><h2 className="text-3xl font-bold mb-3">Collect a little joy</h2><p>Explore the café, collect game stamps, and discover eight milestone badges.</p><span className="inline-block mt-4 font-bold">Open your passport →</span></Link>
+      </section>
       <RecentlyPlayed />
 
       <section className="mb-16">
@@ -131,7 +135,7 @@ export default async function HomePage() {
           </TabsList>
           <TabsContent value="all">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {popularGames.map((game) => (
+              {popularGames.slice(0, 8).map((game) => (
                 <GameCard key={game.id} game={game} />
               ))}
             </div>
@@ -140,7 +144,7 @@ export default async function HomePage() {
             <TabsContent key={category} value={category.toLowerCase()}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {popularGames
-                  .filter((game) => game.category === category)
+                  .filter((game) => game.category === category).slice(0, 8)
                   .map((game) => (
                     <GameCard key={game.id} game={game} />
                   ))}

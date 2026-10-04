@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { INPUT_CANCEL_EVENT } from '@/lib/game-runtime'
 
 class PenaltyShootoutScene extends Phaser.Scene {
   private ball?: Phaser.Physics.Arcade.Image
@@ -14,6 +15,7 @@ class PenaltyShootoutScene extends Phaser.Scene {
   private infoText?: Phaser.GameObjects.Text
   private gameOver = false
   private shooting = false
+  private aiming = false
   private dragStart = { x: 0, y: 0 }
   private aimLine?: Phaser.GameObjects.Graphics
 
@@ -61,25 +63,34 @@ class PenaltyShootoutScene extends Phaser.Scene {
     this.roundText = this.add.text(16, 42, 'Round: 1/10', { fontSize: '18px', color: '#ff0', fontFamily: 'monospace' })
     this.infoText = this.add.text(400, 560, 'Swipe from ball toward goal to shoot!', { fontSize: '14px', color: '#ccc', fontFamily: 'monospace' }).setOrigin(0.5)
 
+    const cancelAim = () => {
+      this.aiming = false
+      this.aimLine?.clear()
+    }
+    this.input.on(INPUT_CANCEL_EVENT, cancelAim)
+    this.input.on('pointerupoutside', cancelAim)
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       if (this.gameOver) { this.scene.restart(); return }
       if (this.shooting) return
       const d = Phaser.Math.Distance.Between(p.x, p.y, this.ball!.x, this.ball!.y)
-      if (d < 50) this.dragStart = { x: p.x, y: p.y }
+      this.aiming = d < 50
+      if (this.aiming) this.dragStart = { x: p.x, y: p.y }
     })
     this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
-      if (!p.isDown || this.shooting) return
+      if (!p.isDown || !this.aiming || this.shooting) return
       this.aimLine?.clear()
       this.aimLine?.lineStyle(2, 0xffffff, 0.4)
       this.aimLine?.moveTo(this.ball!.x, this.ball!.y)
-      this.aimLine?.lineTo(this.ball!.x + (this.dragStart.x - p.x), this.ball!.y + (this.dragStart.y - p.y))
+      this.aimLine?.lineTo(this.ball!.x + (p.x - this.dragStart.x), this.ball!.y + (p.y - this.dragStart.y))
       this.aimLine?.strokePath()
     })
     this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
-      if (this.shooting) return
+      if (p.wasCanceled) { cancelAim(); return }
+      if (this.shooting || !this.aiming) return
+      this.aiming = false
       this.aimLine?.clear()
-      const dx = this.dragStart.x - p.x
-      const dy = this.dragStart.y - p.y
+      const dx = p.x - this.dragStart.x
+      const dy = p.y - this.dragStart.y
       const power = Math.sqrt(dx * dx + dy * dy)
       if (power > 30) this.shoot(dx, dy, Math.min(power, 300))
     })
@@ -190,6 +201,7 @@ export default {
     return new Phaser.Game({
       type: Phaser.AUTO,
       parent: containerId,
+      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
       width: 800,
       height: 600,
       backgroundColor: '#1a3322',

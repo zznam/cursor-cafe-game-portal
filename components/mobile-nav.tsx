@@ -58,6 +58,8 @@ export function MobileNav() {
                 <Upload className="w-5 h-5" />
                 <span className="font-medium">Contribute</span>
               </Link>
+              <Link href="/daily" onClick={() => setOpen(false)} className="px-4 py-3 text-amber-200">Daily brew</Link>
+              <Link href="/passport" onClick={() => setOpen(false)} className="px-4 py-3 text-amber-200">Game passport</Link>
               <div className="border-t border-white/10 my-2" />
               <Link
                 href="/about"

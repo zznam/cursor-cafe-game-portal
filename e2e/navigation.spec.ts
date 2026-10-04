@@ -53,7 +53,7 @@ test.describe('Navigation', () => {
     await page.goto('/')
 
     await expect(
-      page.getByRole('link', { name: 'Home' })
+      page.getByRole('link', { name: 'Home', exact: true })
     ).toBeVisible()
     await expect(
       page.getByRole('link', { name: 'All Games' }).first()

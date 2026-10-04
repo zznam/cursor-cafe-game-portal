@@ -15,7 +15,7 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Cursor Café — Play Amazing Browser Games",
   description:
-    "Discover and play 27+ amazing browser games built with Phaser. Leaderboards, ratings, and community — all in one place.",
+    "Discover and play touch-friendly browser games built with Phaser. Leaderboards, ratings, and community — all in one place.",
   keywords: [
     "browser games",
     "phaser games",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Cursor Café — Play Amazing Browser Games",
     description:
-      "Discover and play 27+ amazing browser games. Leaderboards, ratings, and community.",
+      "Discover and play touch-friendly browser games. Leaderboards, ratings, and community.",
     type: "website",
   },
 };
@@ -58,7 +58,7 @@ export default function RootLayout({
                   </span>
                 </Link>
 
-                <div className="hidden md:flex items-center gap-6">
+                <div className="hidden md:flex items-center gap-4">
                   <Link
                     href="/"
                     className="text-white/80 hover:text-white transition-colors text-sm font-medium"
@@ -71,6 +71,8 @@ export default function RootLayout({
                   >
                     All Games
                   </Link>
+                  <Link href="/daily" className="text-sm text-amber-200">Daily</Link>
+                  <Link href="/passport" className="text-sm text-amber-200">Passport</Link>
                   <Link
                     href="/contribute"
                     className="text-white/80 hover:text-white transition-colors text-sm font-medium"
@@ -85,7 +87,7 @@ export default function RootLayout({
                   </Link>
                 </div>
 
-                <div className="hidden md:block">
+                <div className="hidden xl:block">
                   <SearchBar />
                 </div>
 
@@ -94,7 +96,7 @@ export default function RootLayout({
                 </div>
               </nav>
 
-              <div className="mt-3 md:hidden">
+              <div className="mt-3 xl:hidden">
                 <SearchBar />
               </div>
             </div>
@@ -190,6 +192,7 @@ export default function RootLayout({
                   </h4>
                   <div className="flex gap-3">
                     <a
+                      aria-label="View the source repository"
                       href="https://github.com/zznam/cursor-cafe-game-portal"
                       target="_blank"
                       rel="noopener noreferrer"

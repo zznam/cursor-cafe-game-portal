@@ -7,7 +7,7 @@ npm run lint
 npm run type-check
 npm run test:coverage
 npm run build
-npx playwright install chromium
+npx playwright install chromium webkit
 E2E_MOCK_DATABASE=true npm run test:e2e
 # If port 3000 is occupied:
 E2E_BASE_URL=http://localhost:3100 E2E_MOCK_DATABASE=true npm run test:e2e
@@ -25,4 +25,47 @@ E2E_BASE_URL=http://localhost:3100 E2E_MOCK_DATABASE=true npm run test:e2e
 
 The browser fixture uses the PostgreSQL protocol and real SQL constraints/triggers. It runs with one worker because the outage test temporarily stops its database socket server, then verifies recovery. Cloud IAM, DNS latency/failover, certificate issuance, Neon cold starts/quotas and cross-region behavior require staging verification.
 
-Missing seeded games now fail the browser suite instead of silently skipping. Desktop-only navigation is skipped on mobile/tablet; outage control is skipped when tests run without the isolated database fixture. Use `--project=chromium-desktop --project=chromium-mobile` for the CI subset; tablet remains available locally.
+Missing seeded games now fail the browser suite instead of silently skipping. Desktop-only navigation is skipped on mobile/tablet; outage control is skipped when tests run without the isolated database fixture. CI runs Chromium desktop/mobile plus WebKit mobile for the new features and full-catalog touch suite. Chromium tablet remains available locally.
+
+## Café release acceptance
+
+`tests/cafe.test.ts` verifies the four-game rotation and UTC boundaries, invalid
+and historical dates, 1,000 solvable pipe boards, block boundaries and intersecting
+line clearing, stack geometry, seeded obstacle sequences, best-result comparisons,
+immutable progress aggregation, duplicate/abandoned attempts and all eight badges.
+The PostgreSQL suite checks repeated catalog seeding preserves existing IDs,
+ratings, comments and play counts; fixtures apply every migration in order.
+
+`e2e/cafe-features.spec.ts` covers discovery URL state, selection beyond pagination,
+actual puzzle solving and completed seeded runs, midnight rollover, cross-tab
+progress, malformed/unavailable storage and sharing fallback. `e2e/touch-games.spec.ts` exercises all 31 game modules on touch
+surfaces, including every advertised action, pause/restart, portrait/landscape
+reflow, Sudoku/word/mine controls, cancelled sports gestures, and real
+simultaneous contacts for Pong. Existing
+keyboard-focus and runtime tests remain release requirements.
+
+Progress is local to this browser. Immutable run-start and result records use
+`cafe:v1:activity:*` storage keys, so independent tabs cannot overwrite one another.
+Official daily and past-date practice attempts keep separate bests and histories;
+only official completions count toward daily badges. Invalid records are ignored;
+unavailable storage falls back to session memory with a notice. No account, cloud sync or anti-cheat guarantee is introduced.
+
+## Release validation (2026-10-04)
+
+- Production build and TypeScript check passed. ESLint reported no errors and 49
+  pre-existing warnings.
+- All 24 unit/SQL tests passed, including repeated seeding with preserved scores,
+  ratings, comments, IDs and play counts. The configured security coverage gate
+  passed (100% statements/lines/functions, 91.66% branches).
+- The 491-case browser matrix covered Chromium desktop, phone and tablet, plus
+  WebKit mobile. There were 47 intentional platform-specific skips. The broad run
+  passed 443 tests and exposed one rapid category-reset race, which was fixed.
+  On the final build, the 56 affected discovery/daily/progress scenarios were
+  verified: 55 passed together; the remaining restart assertion was corrected to
+  wait for Phaser's deferred canvas teardown and passed in a separate rerun.
+- Axe 4.11.1 found no WCAG A/AA violations in ten desktop/phone checks covering
+  discovery, daily, passport, and running pastry/Sudoku players with zoom and pan.
+  Canvas gameplay also received visual, keyboard and real touch-event checks.
+
+These checks use browser device emulation and an isolated local SQL fixture.
+Production migrations, seeding and deployment have not been performed.

@@ -10,21 +10,18 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import {Button} from "@/components/ui/button";
-import type {Metadata} from "next";
+import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
+import { countGames } from "@/lib/server/catalog";
+import { GAME_CATEGORIES } from "@/types/game";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "About — Cursor Café",
   description:
     "Learn about Cursor Café, the cozy corner for amazing browser games. Our mission, tech stack, and story.",
 };
-
-const STATS = [
-  {icon: Gamepad2, label: "Games", value: "27+", color: "text-purple-400"},
-  {icon: Star, label: "Categories", value: "10", color: "text-yellow-400"},
-  {icon: Trophy, label: "Leaderboards", value: "Live", color: "text-amber-400"},
-  {icon: Users, label: "Open Source", value: "Yes", color: "text-pink-400"},
-];
 
 const TECH_STACK = [
   {
@@ -33,7 +30,7 @@ const TECH_STACK = [
     color: "from-white/20 to-white/5",
   },
   {
-    name: "Phaser 3",
+    name: "Phaser",
     desc: "HTML5 game framework",
     color: "from-cyan-500/20 to-cyan-500/5",
   },
@@ -59,7 +56,29 @@ const TECH_STACK = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const gameCount = await countGames();
+  const stats = [
+    {
+      icon: Gamepad2,
+      label: "Games",
+      value: gameCount,
+      color: "text-purple-400",
+    },
+    {
+      icon: Star,
+      label: "Categories",
+      value: GAME_CATEGORIES.length,
+      color: "text-yellow-400",
+    },
+    {
+      icon: Trophy,
+      label: "Leaderboards",
+      value: "Live",
+      color: "text-amber-400",
+    },
+    { icon: Users, label: "Open Source", value: "Yes", color: "text-pink-400" },
+  ];
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
@@ -79,14 +98,14 @@ export default function AboutPage() {
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
             We believe gaming should be instant, accessible, and fun. No
-            downloads, no sign-ups — just click and play. That&apos;s the Cursor Café
-            way.
+            downloads, no sign-ups — just click and play. That&apos;s the Cursor
+            Café way.
           </p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-          {STATS.map((stat) => (
+          {stats.map((stat) => (
             <div
               key={stat.label}
               className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:bg-white/10 transition-colors"
@@ -192,7 +211,7 @@ export default function AboutPage() {
         <div className="text-center bg-linear-to-r from-purple-500/10 via-pink-500/10 to-amber-500/10 border border-white/10 rounded-2xl p-10">
           <h2 className="text-2xl font-bold text-white mb-3">Ready to Play?</h2>
           <p className="text-white/60 mb-6">
-            Jump into our collection of 27+ browser games — no download
+            Jump into our collection of {gameCount} browser games — no download
             required.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">

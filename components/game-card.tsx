@@ -99,6 +99,7 @@ export function GameCard({ game }: GameCardProps) {
           <p className="text-sm text-white/60 line-clamp-2 mb-3">
             {game.description}
           </p>
+          <p className="text-xs text-amber-200/90 mb-3">{game.mood} · {game.sessionMinutes ? `~${game.sessionMinutes} min` : 'Take your time'} · {game.touch ? 'Touch + desktop' : 'Keyboard / mouse'}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-sm">
               <div className="flex items-center gap-1 text-yellow-400">
