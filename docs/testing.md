@@ -42,7 +42,10 @@ progress, malformed/unavailable storage and sharing fallback. `e2e/touch-games.s
 surfaces, including every advertised action, pause/restart, portrait/landscape
 reflow, Sudoku/word/mine controls, cancelled sports gestures, and real
 simultaneous contacts for Pong. Existing
-keyboard-focus and runtime tests remain release requirements.
+keyboard-focus and runtime tests remain release requirements. Browser CI runs in
+a separate GitHub-hosted Linux job with streamed per-test output, a 30-minute job
+limit, and an uploaded HTML report. Unit/SQL and build checks retain the configured
+self-hosted runner preference.
 
 Progress is local to this browser. Immutable run-start and result records use
 `cafe:v1:activity:*` storage keys, so independent tabs cannot overwrite one another.

@@ -29,13 +29,26 @@ jobs:
           retention-days: 14
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run build
+  browser:
+    # Keep browser rendering off the shared self-hosted runner and expose each
+    # test as it runs, instead of buffering dot output until the suite finishes.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
       - run: npx playwright install --with-deps chromium webkit
-      - run: npm run test:e2e -- --project=chromium-desktop --project=chromium-mobile --project=webkit-mobile
+      - run: npm run test:e2e -- --project=chromium-desktop --project=chromium-mobile --project=webkit-mobile --reporter=line,html
         env:
           CI: 'true'
           E2E_MOCK_DATABASE: 'true'
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: ${{ !cancelled() }}
         with:
           name: browser-test-report
           path: playwright-report
