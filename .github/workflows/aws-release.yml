@@ -89,7 +89,7 @@ jobs:
         run: |
           export AWS_REGION="$PRIMARY_REGION" IMAGE_URI="$(cat "image-$PRIMARY_REGION.txt")" REGIONAL_URL="https://$PRIMARY_REGION.$APP_HOSTNAME"
           bash scripts/deploy-aws-region.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: release-record-${{ github.sha }}
