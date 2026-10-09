@@ -23,7 +23,7 @@ jobs:
       - run: npm run lint
       - run: npm run type-check
       - run: npm run test:coverage
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: security-unit-coverage
           path: coverage/lcov.info
@@ -48,7 +48,7 @@ jobs:
         env:
           CI: 'true'
           E2E_MOCK_DATABASE: 'true'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: ${{ !cancelled() }}
         with:
           name: browser-test-report

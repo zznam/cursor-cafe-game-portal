@@ -46,7 +46,7 @@ jobs:
         run: terraform -chdir=infra/aws apply production.tfplan
       - if: inputs.action == 'apply'
         run: terraform -chdir=infra/aws output -json > infrastructure-outputs.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: inputs.action == 'apply'
         with:
           name: infrastructure-outputs
