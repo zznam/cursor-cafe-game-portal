@@ -99,6 +99,19 @@ liveness, readiness, catalog and Neon migration state were checked read-only;
 the hosted commit is unchanged. See [DEPLOYMENT_STATUS.md](../DEPLOYMENT_STATUS.md)
 for release boundaries and the unresolved development-only dependency advisory.
 
+### Release CI follow-up
+
+Release PR #34 rebases these changes onto the current main branch and upgrades
+Next.js plus its lint configuration to 16.4.2 after CI detected new production
+security advisories. Browser dependency setup uses Ubuntu's official HTTPS
+archive because the runner's Azure mirror stalled; no test coverage or security
+gate is removed. `e2e/sound-preference.spec.ts` additionally verifies remembered
+sound at game start and restart behavior when browser storage is blocked.
+
+The PR records final combined-head CI results. Production rollout is verified
+separately by checking the canonical site's release SHA, database readiness,
+catalog, and game player after merge.
+
 ## Earlier release validation (2026-10-04)
 
 - Production build and TypeScript check passed. ESLint reported no errors and 49

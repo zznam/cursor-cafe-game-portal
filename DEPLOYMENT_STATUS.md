@@ -1,8 +1,11 @@
 # Production readiness — 22 October 2026
 
-The app and game improvements are on local branch `codex/production-readiness-oct22`.
-They have not been deployed. Use [DEPLOYMENT.md](DEPLOYMENT.md) for the Vercel +
-Neon release process; the old Supabase setup instructions are historical.
+The app and game improvements are tracked in
+[release PR #34](https://github.com/zznam/cursor-cafe-game-portal/pull/34).
+This document records pre-release validation; the PR and Vercel deployment
+history record subsequent merge and rollout status. Use
+[DEPLOYMENT.md](DEPLOYMENT.md) for the Vercel + Neon release process; the old
+Supabase setup instructions are historical.
 
 ## Verified implementation
 
@@ -20,6 +23,13 @@ Neon release process; the old Supabase setup instructions are historical.
   that an undelivered message was sent or advertises an unverified mailbox.
 - The production `source-map-js` dependency is patched to 1.2.2. The container
   now uses Node 22, matching `package.json` and the CI application jobs.
+- Next.js and its lint configuration are updated to 16.4.2, addressing the
+  newly reported production advisories affecting 16.3.8. The stricter React
+  checks also prompted ignoring obsolete comment responses and restoring
+  sound preferences in the Play action, with in-session settings kept on restart.
+- Browser CI uses Ubuntu's official HTTPS archive after the Azure mirror
+  stalled dependency downloads. The dependency setup has an eight-minute limit;
+  all browser projects and tests remain enabled.
 
 ## Validation
 
@@ -41,11 +51,11 @@ Neon release process; the old Supabase setup instructions are historical.
   and pastry-game checks passed across all four projects with retries disabled.
   See [docs/testing.md](docs/testing.md) for commands and coverage.
 
-## Current hosted service
+## Hosted baseline before this release
 
 Read-only checks of `https://cursor-cafe-game-portal.vercel.app` returned 200 for
 liveness, readiness, and the catalog. The promoted release reports commit
-`40fca8838f62b43f45da96fc23174f7405eaa523`; it does not include this local work.
+`40fca8838f62b43f45da96fc23174f7405eaa523` at the time of this baseline check.
 The configured Neon database also passed a read-only readiness query, contained
 31 game listings, and recorded both portable PostgreSQL migrations.
 

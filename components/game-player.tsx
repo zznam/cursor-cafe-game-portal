@@ -64,6 +64,7 @@ export function GamePlayer({
     generation = useRef(0),
     interaction = useRef<() => void>(() => {})
   const soundRef = useRef(false),
+    soundInitialized = useRef(false),
     ready = useRef(false),
     pauseRef = useRef(false)
   const [loading, setLoading] = useState(false),
@@ -87,12 +88,6 @@ export function GamePlayer({
   useEffect(() => {
     progressRef.current = progress
   }, [progress])
-  useEffect(() => {
-    const stored = readSoundPreference()
-    soundRef.current = stored
-    // Restore the remembered preference once, after hydration.
-    setSound(stored)
-  }, [])
   const cafe = (CAFE_GAMES as readonly string[]).includes(gameSlug),
     config = capabilitiesFor(gameSlug)
   useEffect(() => {
@@ -126,6 +121,11 @@ export function GamePlayer({
   )
   const startGame = useCallback(async () => {
     if (!containerRef.current) return
+    if (!soundInitialized.current) {
+      soundRef.current = readSoundPreference()
+      setSound(soundRef.current)
+      soundInitialized.current = true
+    }
     const current = ++generation.current
     release()
     gameRef.current?.destroy(true)
