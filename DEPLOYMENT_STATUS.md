@@ -1,237 +1,69 @@
-> Historical Supabase guide. The app now uses Neon PostgreSQL; use [the current deployment guide](DEPLOYMENT.md) for setup and migration.
+# Production readiness — 22 October 2026
 
-> Historical setup notes. For current server credentials, schema migrations, and the default Vercel deployment, follow [DEPLOYMENT.md](DEPLOYMENT.md). AWS is an optional custom deployment.
+The app and game improvements are on local branch `codex/production-readiness-oct22`.
+They have not been deployed. Use [DEPLOYMENT.md](DEPLOYMENT.md) for the Vercel +
+Neon release process; the old Supabase setup instructions are historical.
 
-# 🎮 Game Portal - Deployment Status
+## Verified implementation
 
-## ✅ READY TO DEPLOY!
+- Favorites, catalog sorting, daily streaks, ten passport badges, and personal
+  bests build on the existing local-progress features.
+- Classic games report finished scores; scene restarts begin a new recorded
+  round and dismiss the previous result. Lower-is-better puzzle results stay in
+  personal bests rather than entering a descending-score leaderboard.
+- Hexagon Match 3 recognizes all three axes, aligns visible tiles with their
+  input targets, guarantees a playable initial board, refreshes stuck boards,
+  and finishes a scored round after 20 valid moves.
+- Score submission survives blocked browser storage, prevents concurrent
+  submissions, exposes retryable failures, and uses a modal with contained focus.
+- The contact page opens a GitHub issue draft for review. It no longer claims
+  that an undelivered message was sent or advertises an unverified mailbox.
+- The production `source-map-js` dependency is patched to 1.2.2. The container
+  now uses Node 22, matching `package.json` and the CI application jobs.
 
-**Date:** February 28, 2026  
-**Status:** All systems configured and tested  
-**Repository:** https://github.com/zznam/cursor-cafe-game-portal
+## Validation
 
----
+- Clean dependency install, production build, TypeScript, and ESLint passed.
+  ESLint has 49 existing warnings and no errors.
+- All 34 unit/database/release tests passed. The security utility coverage gate
+  passed with 100% lines, statements, and functions, and 91.66% branches.
+- `npm audit --omit=dev --audit-level=high` reports zero vulnerabilities.
+- The production Docker image built and ran with UID 1001 on Node 22. Liveness,
+  the contact page, and a public asset returned 200. The container health check
+  passed; readiness correctly returned 503 without database credentials.
+- Terraform format checks and validation of both AWS roots passed in an isolated
+  container using Terraform 1.14.7 and the locked AWS provider 6.67.0. No cloud
+  resources or checked-in provider locks were changed.
+- The 511-case desktop, phone, tablet, and WebKit browser matrix produced 462
+  passes, 47 intentional platform skips, one Safari focus failure, and one
+  intermittent rapid-input test failure that passed on retry. Both issues were
+  corrected. On the rebuilt final artifact, all 16 affected score, favorites,
+  and pastry-game checks passed across all four projects with retries disabled.
+  See [docs/testing.md](docs/testing.md) for commands and coverage.
 
-## ✅ Completed Setup
+## Current hosted service
 
-### 1. Supabase Configuration ✅
-- **Project URL:** `https://your-project-id.supabase.co`
-- **Status:** Connected and configured
-- **Database:** Schema should be deployed (run `supabase/schema.sql`)
-- **Sample Data:** Ready to seed (run `scripts/seed-games.sql`)
+Read-only checks of `https://cursor-cafe-game-portal.vercel.app` returned 200 for
+liveness, readiness, and the catalog. The promoted release reports commit
+`40fca8838f62b43f45da96fc23174f7405eaa523`; it does not include this local work.
+The configured Neon database also passed a read-only readiness query, contained
+31 game listings, and recorded both portable PostgreSQL migrations.
 
-### 2. Local Development ✅
-- **Dev Server:** Running on `http://localhost:3000`
-- **Environment:** `.env.local` configured with Supabase credentials
-- **Build:** Successful production build
-- **Tests:** Portal loads without errors
+## Remaining release boundaries
 
-### 3. Git Repository ✅
-- **Remote:** https://github.com/zznam/cursor-cafe-game-portal.git
-- **Branch:** main
-- **Status:** All code committed and pushed
-- **Latest Commit:** "Add placeholder thumbnails and setup configuration"
+Publish and promote through the existing release process, then verify the new release identity,
+readiness, catalog, and gameplay. This work adds no database migration; running
+the catalog seed refreshes the Hexagon Match 3 description while preserving IDs
+and player activity.
 
-### 4. Assets ✅
-- **Thumbnails:** Placeholder PNGs created (1x1 transparent)
-- **Note:** Replace with actual game screenshots later
-- **Location:** `public/games/*/thumbnail.png`
+The full development-dependency audit still reports the `braces` 3.0.3 advisory
+[GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) through the
+Next.js ESLint plugin (five affected entries in that chain). The registry reported
+no patched `braces` release during this check. The suggested npm fix downgrades
+Next.js lint tooling, so it was not applied. This dependency is excluded from
+the production dependency audit; the issue has not been suppressed.
 
----
-
-## 📋 Next Steps (Do This Now!)
-
-### Step 1: Deploy Database Schema
-
-**Go to Supabase SQL Editor and run:**
-
-1. **Schema (Required):**
-   - File: `supabase/schema.sql`
-   - Creates: tables, indexes, functions, policies
-   - Time: ~10 seconds
-
-2. **Sample Data (Recommended):**
-   - File: `scripts/seed-games.sql`
-   - Creates: 2 games with ratings, comments, leaderboards
-   - Time: ~5 seconds
-
-### Step 2: Deploy to Vercel
-
-**Follow:** `VERCEL_DEPLOY.md` for detailed instructions
-
-**Quick Steps:**
-1. Go to https://vercel.com
-2. Sign in with GitHub
-3. Import `cursor-cafe-game-portal` repository
-4. Add environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-5. Click "Deploy"
-6. Wait 2-3 minutes
-7. ✅ Your portal is live!
-
----
-
-## 🎯 Environment Variables
-
-**For Vercel deployment, add these:**
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
----
-
-## 📊 What You'll Get
-
-### Features Live
-- ✅ Beautiful game portal homepage
-- ✅ 2 playable Phaser games (Breakout, Space Shooter)
-- ✅ Game categories and filtering
-- ✅ 5-star rating system
-- ✅ Comments section
-- ✅ Leaderboards with high scores
-- ✅ Play count tracking
-- ✅ Analytics system
-- ✅ Responsive design
-
-### URLs After Deployment
-- **Production:** `https://cursor-cafe-game-portal.vercel.app`
-- **Custom Domain:** (optional, configure in Vercel)
-- **Supabase Dashboard:** https://app.supabase.com/project/your-project-id
-
----
-
-## 🔍 Testing Checklist
-
-After deployment, test these:
-
-### Homepage
-- [ ] Page loads successfully
-- [ ] Featured games section appears
-- [ ] Popular games section appears
-- [ ] Navigation works
-- [ ] Styling looks correct
-
-### Games List
-- [ ] All games page loads
-- [ ] Category filters work
-- [ ] Game cards display correctly
-- [ ] Can click into games
-
-### Individual Game Page
-- [ ] Game page loads
-- [ ] Game metadata displays
-- [ ] Leaderboard shows (if seeded)
-- [ ] Can add comments
-- [ ] Can submit ratings
-- [ ] Game player component loads
-
-### Game Playing
-- [ ] Breakout game loads
-- [ ] Space Shooter game loads
-- [ ] Controls work (arrow keys, spacebar)
-- [ ] Games are playable
-- [ ] No console errors
-
----
-
-## 🚨 Known Issues
-
-### Thumbnails
-**Issue:** Using 1x1 placeholder PNGs  
-**Impact:** Games show tiny thumbnails  
-**Fix:** Replace with actual 800x450 screenshots  
-**Priority:** Low (cosmetic only)
-
-### First Load
-**Issue:** Games may take a moment to load initially  
-**Impact:** Brief loading time on first play  
-**Fix:** Normal behavior, will improve with caching  
-**Priority:** None (expected)
-
----
-
-## 📈 Performance
-
-### Build Stats
-- **Build Time:** ~5-7 seconds
-- **Bundle Size:** Optimized
-- **Pages:** 7 static/dynamic pages
-- **API Routes:** 2 endpoints
-
-### Expected Performance
-- **Page Load:** < 2 seconds
-- **Game Load:** < 3 seconds
-- **Database Queries:** < 100ms
-- **Lighthouse Score:** 90+ (estimated)
-
----
-
-## 🎨 Customization Ideas
-
-### Short Term
-- Replace placeholder thumbnails
-- Add your branding/logo
-- Customize color scheme
-- Add more games
-
-### Medium Term
-- Add user authentication
-- Create developer accounts
-- Build admin dashboard
-- Add game upload interface
-
-### Long Term
-- Achievements system
-- Tournaments
-- Multiplayer games
-- Monetization
-
----
-
-## 📚 Documentation
-
-**Available Guides:**
-- `README.md` - Project overview
-- `QUICKSTART.md` - 5-minute setup
-- `CONTRIBUTING.md` - How to add games
-- `DEPLOYMENT.md` - Deployment guide
-- `VERCEL_DEPLOY.md` - Vercel-specific steps
-- `GAME_INTEGRATION.md` - API integration
-- `PROJECT_SUMMARY.md` - Technical details
-- `NEXT_STEPS.md` - What to do next
-
----
-
-## ✅ Ready to Launch!
-
-**Your portal is 100% ready for deployment!**
-
-**To deploy right now:**
-1. Run SQL scripts in Supabase (2 minutes)
-2. Deploy to Vercel (3 minutes)
-3. Test your live site (2 minutes)
-4. Share with the world! 🎉
-
-**Total time to live:** ~7 minutes
-
----
-
-## 🆘 Support
-
-**Issues?**
-- Check `VERCEL_DEPLOY.md` for troubleshooting
-- Review Vercel build logs
-- Check Supabase logs
-- Open GitHub issue
-
-**Questions?**
-- Read the documentation
-- Check example games
-- Review code comments
-
----
-
-**🚀 Let's deploy! Follow VERCEL_DEPLOY.md now!**
+Public scores remain client-reported casual scores, not an anti-cheat system.
+Passport and favorites stay in the player's browser. Backup restore drills,
+cloud quota alerts, and regional failover were not exercised by these local
+checks; the operational requirements remain in the deployment guide.

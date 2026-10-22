@@ -27,6 +27,7 @@ export function getGames(
     limit?: number
     offset?: number
     search?: string
+    sort?: 'popular' | 'rating' | 'newest' | 'title'
   } = {},
 ) {
   const query = new URLSearchParams()

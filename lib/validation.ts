@@ -13,6 +13,7 @@ export const gamesQuerySchema = z.object({
   duration: z.enum(['quick', 'short', 'long']).optional(),
   touch: z.enum(['true', 'false']).transform(value => value === 'true').optional(),
   category: z.string().trim().max(40).optional(),
+  sort: z.enum(['popular', 'rating', 'newest', 'title']).optional(),
   featured: z
     .enum(['true', 'false'])
     .transform((value) => value === 'true')

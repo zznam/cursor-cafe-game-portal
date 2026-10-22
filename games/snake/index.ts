@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 const HEADER_H = 50
 const GRID_COLS = 20
@@ -265,6 +266,7 @@ class SnakeScene extends Phaser.Scene {
   private triggerGameOver() {
     if (this.gameOver) return
     this.gameOver = true
+    reportScore(this, { score: this.score })
 
     this.moveTimer?.destroy()
     if (this.foodPulseTween) this.foodPulseTween.destroy()

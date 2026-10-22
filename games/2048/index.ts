@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 const GRID_SIZE = 4
 const CELL_SIZE = 120
@@ -337,13 +338,13 @@ class Game2048Scene extends Phaser.Scene {
     overlay.fillStyle(0x000000, 0.5)
     overlay.fillRect(0, 0, 800, 600)
 
-    this.add.text(400, 250, 'You reached 2048!', {
+    const winTitle = this.add.text(400, 250, 'You reached 2048!', {
       fontSize: '42px',
       color: '#ffd700',
       fontStyle: 'bold',
     }).setOrigin(0.5)
 
-    this.add.text(400, 310, `Score: ${this.score}`, {
+    const winScore = this.add.text(400, 310, `Score: ${this.score}`, {
       fontSize: '28px',
       color: '#ffffff',
     }).setOrigin(0.5)
@@ -355,12 +356,15 @@ class Game2048Scene extends Phaser.Scene {
 
     this.input.once('pointerdown', () => {
       overlay.destroy()
+      winTitle.destroy()
+      winScore.destroy()
       continueText.destroy()
     })
   }
 
   private showGameOver() {
     this.isGameOver = true
+    reportScore(this, { score: this.score })
 
     const overlay = this.add.graphics()
     overlay.fillStyle(0x000000, 0.6)

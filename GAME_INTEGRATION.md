@@ -120,6 +120,31 @@ Analytics.trackEvent({
 })
 ```
 
+## Reporting a Finished Round (recommended)
+
+Call `reportScore` once when a round ends. The portal then saves the player's
+personal best to their passport, shows a round summary, and offers leaderboard
+submission — no UI work needed in your game.
+
+```ts
+import { reportScore } from '@/lib/game-score'
+
+private triggerGameOver() {
+  if (this.gameOver) return
+  this.gameOver = true
+  reportScore(this, { score: this.score })            // label defaults to "Score 1,240"
+  // reportScore(this, { score: seconds, label: `Solved in ${formatDuration(seconds)}` })
+}
+```
+
+- Higher scores are better by default. If lower is better (strokes, seconds),
+  add your slug to `LOWER_IS_BETTER` in `lib/game-score.ts`; those games keep
+  personal bests but skip the highest-first leaderboard.
+- Restarting inside Phaser is supported: after a score report, the next scene
+  start clears the old summary and records a new round. Report only terminal
+  results, rather than intermediate milestones such as reaching 2048 while
+  allowing the same round to continue.
+
 ## Leaderboard Integration
 
 ### Submit Score

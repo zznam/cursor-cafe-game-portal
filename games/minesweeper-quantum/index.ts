@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { formatDuration, reportScore } from '@/lib/game-score'
 
 class MinesweeperScene extends Phaser.Scene {
   private grid: number[][] = []
@@ -11,6 +12,7 @@ class MinesweeperScene extends Phaser.Scene {
   private offsetX = 80
   private offsetY = 60
   private gameOver = false
+  private startedAt = 0
   private firstClick = true
   private mineCount?: Phaser.GameObjects.Text
   private cellGraphics?: Phaser.GameObjects.Graphics
@@ -25,6 +27,7 @@ class MinesweeperScene extends Phaser.Scene {
     this.revealed = []
     this.flagged = []
     this.gameOver = false
+    this.startedAt = Date.now()
     this.firstClick = true
     this.textObjects = []
 
@@ -140,6 +143,8 @@ class MinesweeperScene extends Phaser.Scene {
         if (!this.revealed[r][c]) unrevealed++
     if (unrevealed === this.mines) {
       this.gameOver = true
+      const seconds = Math.round((Date.now() - this.startedAt) / 1000)
+      reportScore(this, { score: seconds, label: `Cleared in ${formatDuration(seconds)}` })
       this.add.text(400, 300, 'You Win!', { fontSize: '48px', color: '#00ff88', fontStyle: 'bold' }).setOrigin(0.5)
       this.add.text(400, 350, 'Click to Restart', { fontSize: '20px', color: '#aaa' }).setOrigin(0.5)
     }

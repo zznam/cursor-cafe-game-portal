@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class TowerDefenseScene extends Phaser.Scene {
   private path: { x: number; y: number }[] = []
@@ -198,6 +199,7 @@ class TowerDefenseScene extends Phaser.Scene {
 
   endGame() {
     this.gameOver = true
+    reportScore(this, { score: this.score, secondary: this.wave, label: `Score ${this.score.toLocaleString('en-US')} · wave ${this.wave}` })
     this.physics.pause()
     this.add.text(400, 260, 'Game Over!', { fontSize: '48px', color: '#ff4444', fontStyle: 'bold' }).setOrigin(0.5)
     this.add.text(400, 320, `Score: ${this.score} | Waves: ${this.wave}`, { fontSize: '24px', color: '#fff' }).setOrigin(0.5)

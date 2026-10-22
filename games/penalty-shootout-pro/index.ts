@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 import { INPUT_CANCEL_EVENT } from '@/lib/game-runtime'
 
 class PenaltyShootoutScene extends Phaser.Scene {
@@ -175,6 +176,7 @@ class PenaltyShootoutScene extends Phaser.Scene {
 
   endGame() {
     this.gameOver = true
+    reportScore(this, { score: this.goals, label: `${this.goals}/${this.totalRounds} goals` })
     const msg = this.goals > this.saves ? 'You Win!' : this.goals === this.saves ? 'Draw!' : 'Keeper Wins!'
     const color = this.goals > this.saves ? '#00ff88' : '#ff4444'
     this.add.text(400, 200, msg, { fontSize: '48px', color, fontStyle: 'bold' }).setOrigin(0.5)

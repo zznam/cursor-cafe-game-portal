@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class SpaceShooterScene extends Phaser.Scene {
   private player?: Phaser.Physics.Arcade.Image
@@ -181,6 +182,7 @@ class SpaceShooterScene extends Phaser.Scene {
     if (this.gameOver) return
 
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.spawnTimer?.remove()
     this.physics.pause()
     this.player?.setVisible(false)

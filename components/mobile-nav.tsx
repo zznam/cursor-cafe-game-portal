@@ -1,6 +1,7 @@
 "use client";
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {usePathname} from "next/navigation";
 import Link from "next/link";
 import {
   Menu,
@@ -11,15 +12,38 @@ import {
   Info,
   HelpCircle,
   Mail,
+  Coffee,
+  Compass,
+  Heart,
 } from "lucide-react";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const [openedAt, setOpenedAt] = useState(pathname);
+  // Close the menu after any navigation, including browser back/forward.
+  if (open && openedAt !== pathname) {
+    setOpen(false);
+    setOpenedAt(pathname);
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
     <>
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          setOpenedAt(pathname);
+          setOpen(!open);
+        }}
+        aria-expanded={open}
         className="p-2 text-white/80 hover:text-white transition-colors"
         aria-label={open ? "Close menu" : "Open menu"}
       >
@@ -29,10 +53,10 @@ export function MobileNav() {
       {open && (
         <>
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 top-[106px] sm:top-[114px] bg-black/60 backdrop-blur-sm z-40"
             onClick={() => setOpen(false)}
           />
-          <div className="fixed top-[57px] left-0 right-0 bg-gray-900/95 backdrop-blur-xl border-b border-white/10 z-50 animate-fade-in">
+          <div className="fixed top-[106px] sm:top-[114px] left-0 right-0 bg-gray-900/95 backdrop-blur-xl border-b border-white/10 z-50 animate-fade-in shadow-2xl max-h-[calc(100vh-114px)] overflow-y-auto">
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
               <Link
                 href="/"
@@ -51,6 +75,30 @@ export function MobileNav() {
                 <span className="font-medium">All Games</span>
               </Link>
               <Link
+                href="/daily"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition-colors"
+              >
+                <Coffee className="w-5 h-5 text-amber-400" />
+                <span className="font-medium">Daily brew</span>
+              </Link>
+              <Link
+                href="/passport"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 transition-colors"
+              >
+                <Compass className="w-5 h-5 text-amber-400" />
+                <span className="font-medium">Game passport</span>
+              </Link>
+              <Link
+                href="/favorites"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <Heart className="w-5 h-5 text-pink-400" />
+                <span className="font-medium">My favorites</span>
+              </Link>
+              <Link
                 href="/contribute"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors"
@@ -58,8 +106,6 @@ export function MobileNav() {
                 <Upload className="w-5 h-5" />
                 <span className="font-medium">Contribute</span>
               </Link>
-              <Link href="/daily" onClick={() => setOpen(false)} className="px-4 py-3 text-amber-200">Daily brew</Link>
-              <Link href="/passport" onClick={() => setOpen(false)} className="px-4 py-3 text-amber-200">Game passport</Link>
               <div className="border-t border-white/10 my-2" />
               <Link
                 href="/about"

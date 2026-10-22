@@ -1,5 +1,6 @@
 import { siteUrl } from '@/lib/server/config'
-import { getGameBySlug } from '@/lib/server/catalog'
+import { getGameBySlug, getGames, type CatalogFilters } from '@/lib/server/catalog'
+import { GameCard } from '@/components/game-card'
 import { GamePlayer } from '@/components/game-player'
 import { Leaderboard } from '@/components/leaderboard'
 import { RatingSystem } from '@/components/rating-system'
@@ -25,6 +26,14 @@ export default async function GamePage({
   if (!game) {
     notFound()
   }
+
+  const [sameCategory, sameMood] = await Promise.all([
+    getGames({ category: game.category, limit: 5 }),
+    game.mood ? getGames({ mood: game.mood as CatalogFilters['mood'], limit: 9 }) : Promise.resolve([]),
+  ])
+  const related = [...sameCategory, ...sameMood]
+    .filter((item, index, all) => item.id !== game.id && all.findIndex((other) => other.id === item.id) === index)
+    .slice(0, 4)
 
   const controlsData = GAME_CONTROLS[game.slug]
   const controlsTitle = controlsData?.title ?? game.title
@@ -147,21 +156,27 @@ export default async function GamePage({
             />
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
-            <CommentsSection gameId={game.id} />
-          </div>
+          <CommentsSection gameId={game.id} />
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
-            <Leaderboard gameId={game.id} />
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
-            <RatingSystem gameId={game.id} />
-          </div>
+          <Leaderboard gameId={game.id} />
+          <RatingSystem gameId={game.id} />
         </div>
       </div>
+
+      {related.length > 0 && (
+        <section className="mt-12" aria-labelledby="related-heading">
+          <h2 id="related-heading" className="text-2xl font-bold text-white mb-5">
+            More like this
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {related.map((item) => (
+              <GameCard key={item.id} game={item} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

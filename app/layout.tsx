@@ -4,9 +4,10 @@ import "./globals.css";
 import "./cafe.css";
 import Link from "next/link";
 import {Gamepad2, Coffee, Heart} from "lucide-react";
-import {Github, Twitter} from "@/components/brand-icons";
+import {Github} from "@/components/brand-icons";
 import {MobileNav} from "@/components/mobile-nav";
 import {SearchBar} from "@/components/search-bar";
+import {HeaderNav} from "@/components/header-nav";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -59,36 +60,9 @@ export default function RootLayout({
                   </span>
                 </Link>
 
-                <div className="hidden md:flex items-center gap-4">
-                  <Link
-                    href="/"
-                    className="text-white/80 hover:text-white transition-colors text-sm font-medium"
-                  >
-                    Home
-                  </Link>
-                  <Link
-                    href="/games"
-                    className="text-white/80 hover:text-white transition-colors text-sm font-medium"
-                  >
-                    All Games
-                  </Link>
-                  <Link href="/daily" className="text-sm text-amber-200">Daily</Link>
-                  <Link href="/passport" className="text-sm text-amber-200">Passport</Link>
-                  <Link
-                    href="/contribute"
-                    className="text-white/80 hover:text-white transition-colors text-sm font-medium"
-                  >
-                    Contribute
-                  </Link>
-                  <Link
-                    href="/about"
-                    className="text-white/80 hover:text-white transition-colors text-sm font-medium"
-                  >
-                    About
-                  </Link>
-                </div>
+                <HeaderNav />
 
-                <div className="hidden xl:block">
+                <div className="hidden lg:block">
                   <SearchBar />
                 </div>
 
@@ -97,7 +71,7 @@ export default function RootLayout({
                 </div>
               </nav>
 
-              <div className="mt-3 xl:hidden">
+              <div className="mt-3 lg:hidden">
                 <SearchBar />
               </div>
             </div>
@@ -132,6 +106,30 @@ export default function RootLayout({
                         className="text-sm text-white/50 hover:text-white transition-colors"
                       >
                         All Games
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/daily"
+                        className="text-sm text-white/50 hover:text-white transition-colors"
+                      >
+                        Daily Brew
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/passport"
+                        className="text-sm text-white/50 hover:text-white transition-colors"
+                      >
+                        Game Passport
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/favorites"
+                        className="text-sm text-white/50 hover:text-white transition-colors"
+                      >
+                        My Favorites
                       </Link>
                     </li>
                     <li>
@@ -200,15 +198,6 @@ export default function RootLayout({
                       className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all"
                     >
                       <Github className="w-5 h-5" />
-                    </a>
-                    <a
-                      aria-label="Visit Twitter"
-                      href="https://twitter.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all"
-                    >
-                      <Twitter className="w-5 h-5" />
                     </a>
                   </div>
                 </div>

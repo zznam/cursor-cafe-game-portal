@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 import { INPUT_CANCEL_EVENT } from '@/lib/game-runtime'
 
 class MiniGolfScene extends Phaser.Scene {
@@ -162,6 +163,7 @@ class MiniGolfScene extends Phaser.Scene {
     if (d < 14 && !this.isBallMoving()) {
       if (this.holeNum >= this.totalHoles) {
         this.gameOver = true
+        reportScore(this, { score: this.strokes, label: `${this.strokes} strokes over ${this.totalHoles} holes` })
         this.add.text(400, 260, 'Course Complete!', { fontSize: '40px', color: '#00ff88', fontStyle: 'bold' }).setOrigin(0.5)
         this.add.text(400, 320, `Total Strokes: ${this.strokes}`, { fontSize: '28px', color: '#fff' }).setOrigin(0.5)
         this.add.text(400, 370, 'Click to Restart', { fontSize: '18px', color: '#aaa' }).setOrigin(0.5)

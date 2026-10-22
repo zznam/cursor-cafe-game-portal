@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class WordScrambleScene extends Phaser.Scene {
   private words = [
@@ -148,6 +149,7 @@ class WordScrambleScene extends Phaser.Scene {
 
   endGame() {
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.timerEvent?.remove()
     this.add.text(400, 260, "Time's Up!", { fontSize: '48px', color: '#ff4444', fontStyle: 'bold' }).setOrigin(0.5)
     this.add.text(400, 320, `Final Score: ${this.score}`, { fontSize: '32px', color: '#fff' }).setOrigin(0.5)

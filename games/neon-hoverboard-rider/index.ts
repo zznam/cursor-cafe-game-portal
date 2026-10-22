@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class NeonHoverboardScene extends Phaser.Scene {
   private player?: Phaser.Physics.Arcade.Image
@@ -119,6 +120,7 @@ class NeonHoverboardScene extends Phaser.Scene {
   hitGap() {
     if (this.gameOver) return
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.physics.pause()
     this.add.text(400, 250, 'Wipeout!', { fontSize: '48px', color: '#ff0066', fontStyle: 'bold' }).setOrigin(0.5)
     this.add.text(400, 310, `Score: ${this.score}`, { fontSize: '32px', color: '#fff' }).setOrigin(0.5)

@@ -1,4 +1,6 @@
 import * as Phaser from 'phaser'
+import { createHexBoard, findHexMatches, findHexMove, hexNeighbors } from '@/lib/games/hex-matches'
+import { reportScore } from '@/lib/game-score'
 
 class HexagonMatchScene extends Phaser.Scene {
   private grid: (number | null)[][] = []
@@ -13,6 +15,9 @@ class HexagonMatchScene extends Phaser.Scene {
   private offsetX = 80
   private offsetY = 80
   private animating = false
+  private moves = 20
+  private finished = false
+  private movesText?: Phaser.GameObjects.Text
 
   constructor() {
     super({ key: 'HexagonMatchScene' })
@@ -22,11 +27,15 @@ class HexagonMatchScene extends Phaser.Scene {
     this.score = 0
     this.selected = null
     this.animating = false
+    this.moves = 20
+    this.finished = false
     this.grid = []
     this.hexes = []
 
     this.add.text(400, 25, 'Hexagon Match 3', { fontSize: '28px', color: '#fff', fontFamily: 'monospace' }).setOrigin(0.5)
     this.scoreText = this.add.text(700, 25, 'Score: 0', { fontSize: '20px', color: '#0ff', fontFamily: 'monospace' }).setOrigin(0.5)
+    this.movesText = this.add.text(400, 455, '20 moves left', { fontSize: '20px', color: '#fff', fontFamily: 'monospace' }).setOrigin(0.5)
+    this.add.text(400, 495, 'Swap neighbors to match 3 along any hex direction.\nInvalid swaps do not cost a move.', { fontSize: '16px', color: '#ccc', fontFamily: 'monospace', align: 'center' }).setOrigin(0.5)
 
     for (let r = 0; r < this.rows; r++) {
       this.grid[r] = []
@@ -37,22 +46,11 @@ class HexagonMatchScene extends Phaser.Scene {
       }
     }
 
-    // remove initial matches
-    let hasMatch = true
-    while (hasMatch) {
-      hasMatch = false
-      const matches = this.findMatches()
-      if (matches.length > 0) {
-        hasMatch = true
-        for (const [r, c] of matches) {
-          this.grid[r][c] = Phaser.Math.Between(0, this.colors.length - 1)
-        }
-      }
-    }
-
+    this.prepareBoard()
     this.drawBoard()
 
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (this.finished) { this.scene.restart(); return }
       if (this.animating) return
       const { r, c } = this.pixelToHex(pointer.x, pointer.y)
       if (r < 0 || r >= this.rows || c < 0 || c >= this.cols) return
@@ -65,6 +63,8 @@ class HexagonMatchScene extends Phaser.Scene {
           this.swap(this.selected.r, this.selected.c, r, c)
           const matches = this.findMatches()
           if (matches.length > 0) {
+            this.moves--
+            this.movesText?.setText(`${this.moves} moves left`)
             this.processMatches()
           } else {
             this.swap(this.selected.r, this.selected.c, r, c)
@@ -77,6 +77,10 @@ class HexagonMatchScene extends Phaser.Scene {
         }
       }
     })
+  }
+
+  prepareBoard() {
+    this.grid = createHexBoard()
   }
 
   hexToPixel(r: number, c: number) {
@@ -101,11 +105,7 @@ class HexagonMatchScene extends Phaser.Scene {
   }
 
   areNeighbors(r1: number, c1: number, r2: number, c2: number): boolean {
-    const even = r1 % 2 === 0
-    const neighbors = even
-      ? [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]]
-      : [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
-    return neighbors.some(([dr, dc]) => r1 + dr === r2 && c1 + dc === c2)
+    return hexNeighbors(r1, c1).some(([r, c]) => r === r2 && c === c2)
   }
 
   swap(r1: number, c1: number, r2: number, c2: number) {
@@ -115,22 +115,7 @@ class HexagonMatchScene extends Phaser.Scene {
   }
 
   findMatches(): [number, number][] {
-    const matched = new Set<string>()
-    // check rows
-    for (let r = 0; r < this.rows; r++) {
-      for (let c = 0; c < this.cols - 2; c++) {
-        if (this.grid[r][c] !== null && this.grid[r][c] === this.grid[r][c + 1] && this.grid[r][c] === this.grid[r][c + 2]) {
-          matched.add(`${r},${c}`)
-          matched.add(`${r},${c + 1}`)
-          matched.add(`${r},${c + 2}`)
-        }
-      }
-    }
-    // check diagonal (top-left to bottom-right for even/odd rows)
-    return Array.from(matched).map(s => {
-      const [r, c] = s.split(',').map(Number)
-      return [r, c] as [number, number]
-    })
+    return findHexMatches(this.grid)
   }
 
   processMatches() {
@@ -174,6 +159,14 @@ class HexagonMatchScene extends Phaser.Scene {
         this.processMatches()
       } else {
         this.animating = false
+        if (this.moves === 0) {
+          this.finished = true
+          reportScore(this, { score: this.score })
+          this.movesText?.setText('Round complete · Tap to play again')
+        } else if (!findHexMove(this.grid)) {
+          this.prepareBoard()
+          this.drawBoard()
+        }
       }
     })
   }
@@ -197,7 +190,9 @@ class HexagonMatchScene extends Phaser.Scene {
           points.push(Math.cos(angle) * (this.hexR - 2))
           points.push(Math.sin(angle) * (this.hexR - 2))
         }
-        const hex = this.add.polygon(x, y, points, color, 0.9)
+        // Vertices already surround (0, 0); a centered origin would offset them
+        // a second time and separate the visible tiles from their hit targets.
+        const hex = this.add.polygon(x, y, points, color, 0.9).setOrigin(0, 0)
         if (this.selected && this.selected.r === r && this.selected.c === c) {
           hex.setStrokeStyle(3, 0xffffff)
         }
@@ -211,7 +206,7 @@ export default {
   metadata: {
     slug: 'hexagon-match-3',
     title: 'Hexagon Match 3',
-    description: 'A visually pleasing Match-3 game played on a hexagonal grid. Swap to match colors!',
+    description: 'Match colors along all three hex directions. Make the most of 20 moves and build your best score!',
     thumbnailUrl: '/games/hexagon-match-3/thumbnail.png',
     category: 'Puzzle',
     tags: ['casual', 'matching'],
