@@ -228,7 +228,9 @@ test('badges use distinct games, categories and nonconsecutive daily dates', () 
           new Date(Date.UTC(2026, 0, 1 + i * 2)).toISOString().slice(0, 10),
         ),
       )
-  assert.equal(summarizeActivities(events).badges.length, 8)
+  const earned = summarizeActivities(events).badges
+  assert.equal(earned.length, 8)
+  assert.ok(!earned.includes('streak-three'), 'every-other-day dailies are not a streak')
 })
 test('progress and discovery inputs reject invalid data; sharing contains date and replay link', () => {
   assert.equal(activitySchema.safeParse({ version: 7 }).success, false)

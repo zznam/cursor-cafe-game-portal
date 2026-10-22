@@ -42,7 +42,32 @@ export const BADGES = [
   ['daily-first', 'Daily brew', 'Finish a daily challenge'],
   ['daily-seven', 'Weekly sampler', 'Finish dailies on 7 distinct days'],
   ['daily-thirty', 'Café regular', 'Finish dailies on 30 distinct days'],
+  ['streak-three', 'Steady sipper', 'Finish dailies 3 days in a row'],
+  ['bests-five', 'Personal best', 'Finish a round in 5 different games'],
 ] as const
+
+const DAY = 86400000
+/** Whole days between two YYYY-MM-DD dates (b - a). */
+function dayGap(a: string, b: string) {
+  return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / DAY)
+}
+/**
+ * Consecutive-day streaks over finished daily dates. The current streak stays
+ * alive through today: finishing yesterday but not yet today still counts.
+ */
+export function dailyStreak(dates: string[], today?: string) {
+  const sorted = [...new Set(dates)].sort()
+  let longest = 0,
+    run = 0
+  for (let i = 0; i < sorted.length; i++) {
+    run = i > 0 && dayGap(sorted[i - 1], sorted[i]) === 1 ? run + 1 : 1
+    longest = Math.max(longest, run)
+  }
+  const last = sorted.at(-1)
+  const current =
+    last && today !== undefined && dayGap(last, today) <= 1 ? run : 0
+  return { current, longest }
+}
 export function summarizeActivities(events: Activity[]) {
   const starts = new Map(
     events.filter((e) => e.kind === 'start').map((e) => [e.run, e]),
@@ -78,8 +103,14 @@ export function summarizeActivities(events: Activity[]) {
       if (day && isBetter(e.slug, e.result, day.best)) day.best = e.result
     }
   }
+  const plays: Record<string, number> = {}
+  for (const e of starts.values()) plays[e.slug] = (plays[e.slug] ?? 0) + 1
+  const finishedDates = Object.entries(days)
+    .filter(([, d]) => d.best)
+    .map(([date]) => date)
+  const streak = dailyStreak(finishedDates)
   const count = Object.keys(stamps).length,
-    dailyCount = Object.values(days).filter((d) => d.best).length
+    dailyCount = finishedDates.length
   const checks = [
     count >= 1,
     count >= 5,
@@ -89,12 +120,18 @@ export function summarizeActivities(events: Activity[]) {
     dailyCount >= 1,
     dailyCount >= 7,
     dailyCount >= 30,
+    streak.longest >= 3,
+    Object.keys(bests).length >= 5,
   ]
   return {
     stamps,
     bests,
     days,
     practiceDays,
+    plays,
+    totalPlays: starts.size,
+    finishedDates,
+    longestStreak: streak.longest,
     badges: BADGES.filter((_, i) => checks[i]).map((b) => b[0]),
   }
 }

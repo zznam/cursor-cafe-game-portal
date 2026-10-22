@@ -18,6 +18,15 @@ import {
   type InputBridge,
 } from './touch-controls'
 import { ShareResult } from './share-result'
+import { ScoreSubmitDialog } from './score-submit-dialog'
+import {
+  SCORE_EVENT,
+  ROUND_START_EVENT,
+  supportsLeaderboard,
+  type ScoreReport,
+} from '@/lib/game-score'
+import { isBetter } from '@/lib/daily'
+import { readSoundPreference, writeSoundPreference } from '@/lib/preferences'
 
 const SCROLL_KEYS = new Set([
   'ArrowUp',
@@ -55,6 +64,7 @@ export function GamePlayer({
     generation = useRef(0),
     interaction = useRef<() => void>(() => {})
   const soundRef = useRef(false),
+    soundInitialized = useRef(false),
     ready = useRef(false),
     pauseRef = useRef(false)
   const [loading, setLoading] = useState(false),
@@ -65,12 +75,26 @@ export function GamePlayer({
     [isFullscreen, setIsFullscreen] = useState(false)
   const [activeDaily, setActiveDaily] = useState(daily)
   const [result, setResult] = useState<GameResult | null>(null),
+    [newBest, setNewBest] = useState(false),
+    [submitting, setSubmitting] = useState(false),
+    [submitted, setSubmitted] = useState(false),
     [zoom, setZoom] = useState(1),
     [pan, setPan] = useState(false),
     [flag, setFlag] = useState(false)
   const progress = usePassport()
+  const resultRef = useRef<HTMLDivElement>(null)
+  const scoreButtonRef = useRef<HTMLButtonElement>(null)
+  const progressRef = useRef(progress)
+  useEffect(() => {
+    progressRef.current = progress
+  }, [progress])
   const cafe = (CAFE_GAMES as readonly string[]).includes(gameSlug),
     config = capabilitiesFor(gameSlug)
+  useEffect(() => {
+    // Bring the round summary into view without stealing focus from the game.
+    if (result && !cafe)
+      resultRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [result, cafe])
   const cancelPending = useCallback(() => {
     generation.current++
   }, [])
@@ -97,6 +121,11 @@ export function GamePlayer({
   )
   const startGame = useCallback(async () => {
     if (!containerRef.current) return
+    if (!soundInitialized.current) {
+      soundRef.current = readSoundPreference()
+      setSound(soundRef.current)
+      soundInitialized.current = true
+    }
     const current = ++generation.current
     release()
     gameRef.current?.destroy(true)
@@ -108,8 +137,11 @@ export function GamePlayer({
     setError('')
     setPaused(false)
     setResult(null)
+    setNewBest(false)
+    setSubmitted(false)
+    setSubmitting(false)
     setFlag(false)
-    const run = crypto.randomUUID()
+    let run = crypto.randomUUID()
     let began = false,
       finished = false
     const record = {
@@ -175,6 +207,54 @@ export function GamePlayer({
         },
       })
       gameRef.current = game
+      game.events.on(ROUND_START_EVENT, () => {
+        if (generation.current !== current || cafe) return
+        run = crypto.randomUUID()
+        record.run = run
+        began = false
+        finished = false
+        setResult(null)
+        setNewBest(false)
+        setSubmitted(false)
+        setSubmitting(false)
+        begin()
+      })
+      // Classic games announce each finished round; one Phaser instance can
+      // play many rounds, so every report after the first gets its own run.
+      game.events.on(SCORE_EVENT, (report: ScoreReport) => {
+        if (generation.current !== current || cafe) return
+        begin()
+        let runId = run
+        if (finished) {
+          runId = crypto.randomUUID()
+          saveActivity({
+            ...record,
+            run: runId,
+            id: `${runId}:start`,
+            kind: 'start',
+            at: new Date().toISOString(),
+          })
+        }
+        finished = true
+        const value: GameResult = {
+          score: report.score,
+          secondary: report.secondary,
+          label: (report.label ?? `Score ${report.score}`).slice(0, 120),
+        }
+        const previous = progressRef.current.bests[gameSlug]
+        setNewBest(!!previous && isBetter(gameSlug, value, previous))
+        saveActivity({
+          ...record,
+          run: runId,
+          id: `${runId}:result`,
+          kind: 'result',
+          at: new Date().toISOString(),
+          result: value,
+        })
+        setResult(value)
+        setSubmitted(false)
+        void Analytics.trackComplete(gameId, { score: value.score })
+      })
       const connect = () => {
         const keyboard = game.input.keyboard
         if (keyboard) {
@@ -272,6 +352,7 @@ export function GamePlayer({
               aria-pressed={sound}
               onClick={() => {
                 soundRef.current = !sound
+                writeSoundPreference(!sound)
                 setSound(!sound)
               }}
             >
@@ -326,7 +407,7 @@ export function GamePlayer({
           <TouchControls
             slug={gameSlug}
             bridge={bridge}
-            disabled={loading || paused || !!result}
+            disabled={loading || paused || (cafe && !!result)}
           />
         </div>
       )}
@@ -462,7 +543,7 @@ export function GamePlayer({
           </button>
         </p>
       )}
-      {result && (
+      {result && cafe && (
         <div
           className="order-4 p-5 bg-amber-100 text-stone-900 space-y-3"
           role="status"
@@ -495,6 +576,74 @@ export function GamePlayer({
             />
           )}
         </div>
+      )}
+      {result && !cafe && (
+        <div
+          ref={resultRef}
+          className="order-4 p-4 sm:p-5 bg-amber-100 text-stone-900 flex flex-wrap items-center gap-3 justify-between"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="min-w-0">
+            <p className="text-xs uppercase tracking-widest font-semibold text-amber-900/80">
+              {newBest ? '★ New personal best' : 'Round finished'}
+            </p>
+            <h3 className="text-xl font-bold">{result.label}</h3>
+            {!newBest && progress.bests[gameSlug] && (
+              <p className="text-sm text-stone-700">
+                Your best: {progress.bests[gameSlug].label}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {supportsLeaderboard(gameSlug) && result.score > 0 && (
+              <button
+                ref={scoreButtonRef}
+                className="cafe-control primary"
+                disabled={submitted}
+                onClick={() => setSubmitting(true)}
+              >
+                {submitted ? '✓ On the leaderboard' : '🏆 Submit score'}
+              </button>
+            )}
+            <ShareResult
+              text={`I got ${result.label} in ${title || packageName} at Cursor Café ☕\n${typeof window === 'undefined' ? '' : `${window.location.origin}/games/${gameSlug}`}`}
+            />
+            <button
+              className="cafe-control"
+              aria-label="Dismiss result"
+              onClick={() => {
+                setResult(null)
+                containerRef.current?.focus({ preventScroll: true })
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+      {submitting && result && (
+        <ScoreSubmitDialog
+          gameId={gameId}
+          score={result.score}
+          onClose={() => {
+            setSubmitting(false)
+          }}
+          onRestoreFocus={() => {
+            const button = scoreButtonRef.current
+            // Safari does not focus buttons on pointer activation. Restore to
+            // the actual trigger instead of the element that happened to focus.
+            if (button && !button.disabled) button.focus({ preventScroll: true })
+            else containerRef.current?.focus({ preventScroll: true })
+          }}
+          onSubmit={() => {
+            setSubmitting(false)
+            setSubmitted(true)
+            window.dispatchEvent(
+              new CustomEvent('cafe:leaderboard', { detail: gameId }),
+            )
+          }}
+        />
       )}
       {progress.unavailable && (
         <p className="order-5 p-3 text-sm text-amber-200" role="status">

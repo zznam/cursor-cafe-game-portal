@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 const COLS = 4
 const ROWS = 4
@@ -342,6 +343,7 @@ class MemoryMatchScene extends Phaser.Scene {
 
     const elapsed = Math.floor((this.time.now - this.startTime) / 1000)
     const finalScore = Math.max(0, this.score - (this.moves * 5) - (elapsed * 2))
+    reportScore(this, { score: finalScore, label: `Score ${finalScore.toLocaleString('en-US')} · ${this.moves} moves` })
 
     const overlay = this.add.graphics()
     overlay.fillStyle(0x000000, 0.7)

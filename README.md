@@ -10,10 +10,15 @@ A Next.js 16 / React 19 portal for Phaser browser games, with search, category b
 - Four café originals: Coffee Connections, Pastry Blocks, Cup Stack, and Sugar Orbit.
 - `/daily`: a shared seeded challenge rotating at midnight UTC, unlimited retries,
   personal bests, and player-initiated result sharing. Past dates are practice.
-- `/passport`: game stamps, eight milestone badges, personal bests, and daily history.
+- `/passport`: game stamps, ten milestone badges, daily streaks, personal bests, and daily history.
   Progress stays in this browser; clearing browser data removes it.
 - `/games`: mood, estimated session length, device support, and category filters,
   plus a “Surprise me” choice across the complete matching catalog.
+- `/favorites`: a personal shelf of saved games, stored in this browser.
+- Finished rounds save personal bests and offer score submission for games that
+  rank higher scores first. Hexagon Match 3 has 20-move rounds and matches along
+  all three hex directions.
+- `/contact` prepares a public GitHub issue draft for the player to review before posting.
 
 Existing installations must run both the additive migrations and catalog seed
 before deploying this release. Seeding retains game IDs and existing player activity.

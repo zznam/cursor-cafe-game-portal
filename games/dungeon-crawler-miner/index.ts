@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class DungeonCrawlerScene extends Phaser.Scene {
   private grid: number[][] = []
@@ -139,6 +140,7 @@ class DungeonCrawlerScene extends Phaser.Scene {
 
   endGame() {
     this.gameOver = true
+    reportScore(this, { score: this.gems, secondary: this.depth, label: `${this.gems} gems · depth ${this.depth}` })
     this.add.text(400, 280, 'Game Over!', { fontSize: '48px', color: '#ff4444', fontStyle: 'bold' }).setOrigin(0.5)
     this.add.text(400, 330, `Gems: ${this.gems} | Depth: ${this.depth}`, { fontSize: '24px', color: '#fff' }).setOrigin(0.5)
     this.add.text(400, 380, 'Press any arrow to Restart', { fontSize: '18px', color: '#aaa' }).setOrigin(0.5)

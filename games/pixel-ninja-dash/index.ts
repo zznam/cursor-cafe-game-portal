@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class PixelNinjaDashScene extends Phaser.Scene {
   private ninja?: Phaser.Physics.Arcade.Image
@@ -139,6 +140,7 @@ class PixelNinjaDashScene extends Phaser.Scene {
   hitObstacle() {
     if (this.gameOver) return
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.physics.pause()
     this.spawnTimer?.remove()
     this.add.text(400, 250, 'Game Over!', { fontSize: '48px', color: '#ff4444', fontStyle: 'bold' }).setOrigin(0.5)

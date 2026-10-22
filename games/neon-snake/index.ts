@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class NeonSnakeScene extends Phaser.Scene {
   private snake: { x: number; y: number }[] = []
@@ -152,6 +153,7 @@ class NeonSnakeScene extends Phaser.Scene {
 
   endGame() {
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.add.text(400, 250, 'Game Over!', {
       fontSize: '48px', color: '#ff0066', fontStyle: 'bold',
     }).setOrigin(0.5)

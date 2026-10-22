@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class MazeRunner3DScene extends Phaser.Scene {
   private maze: number[][] = []
@@ -156,6 +157,7 @@ class MazeRunner3DScene extends Phaser.Scene {
   endGame(won: boolean) {
     if (this.gameOver) return
     this.gameOver = true
+    if (won) reportScore(this, { score: this.timeLeft, label: `Escaped with ${this.timeLeft}s left` })
     const msg = won ? 'You Escaped!' : "Time's Up!"
     const color = won ? '#00ff88' : '#ff4444'
     this.add.text(300, 280, msg, { fontSize: '48px', color, fontStyle: 'bold' }).setOrigin(0.5)

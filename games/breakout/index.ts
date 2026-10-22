@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class BreakoutScene extends Phaser.Scene {
   private paddle?: Phaser.GameObjects.Rectangle
@@ -80,6 +81,7 @@ class BreakoutScene extends Phaser.Scene {
   private triggerGameOver() {
     if (this.gameOver) return
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.ball?.setVelocity(0, 0)
     this.ball?.setVisible(false)
     this.physics.pause()
@@ -120,6 +122,8 @@ class BreakoutScene extends Phaser.Scene {
     this.scoreText?.setText(`Score: ${this.score}`)
 
     if (this.bricks?.countActive() === 0) {
+      this.gameOver = true
+      reportScore(this, { score: this.score, label: `Cleared the wall · Score ${this.score.toLocaleString('en-US')}` })
       this.ball?.setVelocity(0, 0)
       this.physics.pause()
 

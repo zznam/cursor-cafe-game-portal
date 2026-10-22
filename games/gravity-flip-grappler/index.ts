@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class GravityFlipScene extends Phaser.Scene {
   private player?: Phaser.Physics.Arcade.Image
@@ -126,6 +127,7 @@ class GravityFlipScene extends Phaser.Scene {
   hitSpike() {
     if (this.gameOver) return
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.physics.pause()
     this.add.text(400, 260, 'Game Over!', { fontSize: '48px', color: '#ff4444', fontStyle: 'bold' }).setOrigin(0.5)
     this.add.text(400, 320, `Score: ${this.score}`, { fontSize: '32px', color: '#fff' }).setOrigin(0.5)

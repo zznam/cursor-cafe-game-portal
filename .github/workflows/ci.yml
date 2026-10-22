@@ -43,7 +43,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium webkit
+      - name: Install browser dependencies
+        timeout-minutes: 8
+        run: |
+          # The Azure mirror can stall downloads long enough to exhaust this job.
+          # Keep Ubuntu's signed packages, using its official HTTPS archive.
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+          fi
+          npx playwright install --with-deps chromium webkit
       - run: npm run test:e2e -- --project=chromium-desktop --project=chromium-mobile --project=webkit-mobile --reporter=line,html
         env:
           CI: 'true'
