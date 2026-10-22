@@ -43,6 +43,11 @@ test('hex matches complete a real 20-move round, save a best, and restart', asyn
       }
       if (isMobile) await canvas.tap({ position })
       else await canvas.click({ position })
+      // Phaser consumes pointer events on a frame boundary. Wait for selection
+      // to render before tapping its neighbor, especially on Linux WebKit.
+      await page.evaluate(() => new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      }))
     }
     await expect.poll(async () => {
       board = await readBoard(page)
