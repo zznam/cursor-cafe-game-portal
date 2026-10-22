@@ -153,22 +153,23 @@ class HexagonMatchScene extends Phaser.Scene {
 
     this.drawBoard()
 
-    this.time.delayedCall(300, () => {
-      const more = this.findMatches()
-      if (more.length > 0) {
-        this.processMatches()
-      } else {
-        this.animating = false
-        if (this.moves === 0) {
-          this.finished = true
-          reportScore(this, { score: this.score })
-          this.movesText?.setText('Round complete · Tap to play again')
-        } else if (!findHexMove(this.grid)) {
-          this.prepareBoard()
-          this.drawBoard()
-        }
-      }
-    })
+    if (this.findMatches().length > 0) {
+      this.time.delayedCall(300, () => this.processMatches())
+      return
+    }
+
+    // A settled board is ready for input immediately. Phaser's clock can advance
+    // slowly at low frame rates, so a final timer leaves a visible, playable
+    // board unresponsive long after the cascade appears to have finished.
+    this.animating = false
+    if (this.moves === 0) {
+      this.finished = true
+      reportScore(this, { score: this.score })
+      this.movesText?.setText('Round complete · Tap to play again')
+    } else if (!findHexMove(this.grid)) {
+      this.prepareBoard()
+      this.drawBoard()
+    }
   }
 
   drawBoard() {

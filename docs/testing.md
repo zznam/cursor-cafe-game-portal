@@ -34,6 +34,12 @@ then verifies personal bests and restart behavior. `e2e/contact.spec.ts` verifie
 the issue draft fields while intercepting GitHub navigation; it never posts an
 external issue. These new flows also run in the WebKit mobile project.
 
+The Hexagon suite also throttles animation frames and plays consecutive moves
+as soon as each board settles. This catches input remaining locked behind a
+Phaser timer after the final cascade; settled boards now unlock immediately.
+The regression was verified against both versions: it failed on the previous
+game code and passed three consecutive WebKit runs after the fix.
+
 Missing seeded games now fail the browser suite instead of silently skipping. Desktop-only navigation is skipped on mobile/tablet; outage control is skipped when tests run without the isolated database fixture. CI runs Chromium desktop/mobile plus WebKit mobile for the new features and full-catalog touch suite. Chromium tablet remains available locally.
 
 ## Café release acceptance

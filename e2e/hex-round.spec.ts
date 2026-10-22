@@ -23,6 +23,33 @@ async function readBoard(page: Page): Promise<HexBoard> {
   }, png.toString('base64'))
 }
 
+async function playMove(page: Page, isMobile: boolean, board: HexBoard): Promise<HexBoard> {
+  const canvas = page.locator('.game-canvas canvas')
+  expect(findHexMatches(board)).toEqual([])
+  const move = findHexMove(board)
+  expect(move).toBeTruthy()
+  const before = JSON.stringify(board)
+  for (const [row, column] of move!) {
+    const box = (await canvas.boundingBox())!
+    const position = {
+      x: (80 + column * Math.sqrt(3) * 30 + (row % 2 ? Math.sqrt(3) * 15 : 0)) / 800 * box.width,
+      y: (80 + row * 45) / 600 * box.height,
+    }
+    if (isMobile) await canvas.tap({ position })
+    else await canvas.click({ position })
+    // Phaser consumes pointer events on a frame boundary. Wait for selection
+    // to render before tapping its neighbor, especially on Linux WebKit.
+    await page.evaluate(() => new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    }))
+  }
+  await expect.poll(async () => {
+    board = await readBoard(page)
+    return JSON.stringify(board) !== before && findHexMatches(board).length === 0
+  }, { timeout: 15000 }).toBe(true)
+  return board
+}
+
 test('hex matches complete a real 20-move round, save a best, and restart', async ({ page, isMobile }) => {
   test.setTimeout(120000)
   await page.goto('/games/hexagon-match-3')
@@ -31,30 +58,7 @@ test('hex matches complete a real 20-move round, save a best, and restart', asyn
   await expect(canvas).toBeVisible()
   let board = await readBoard(page)
   for (let turn = 0; turn < 20; turn++) {
-    expect(findHexMatches(board)).toEqual([])
-    const move = findHexMove(board)
-    expect(move).toBeTruthy()
-    const before = JSON.stringify(board)
-    for (const [row, column] of move!) {
-      const box = (await canvas.boundingBox())!
-      const position = {
-        x: (80 + column * Math.sqrt(3) * 30 + (row % 2 ? Math.sqrt(3) * 15 : 0)) / 800 * box.width,
-        y: (80 + row * 45) / 600 * box.height,
-      }
-      if (isMobile) await canvas.tap({ position })
-      else await canvas.click({ position })
-      // Phaser consumes pointer events on a frame boundary. Wait for selection
-      // to render before tapping its neighbor, especially on Linux WebKit.
-      await page.evaluate(() => new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-      }))
-    }
-    await expect.poll(async () => {
-      board = await readBoard(page)
-      return JSON.stringify(board) !== before && findHexMatches(board).length === 0
-    }).toBe(true)
-    // The final cascade stays input-locked for 300ms after its board is drawn.
-    await page.waitForTimeout(350)
+    board = await playMove(page, isMobile, board)
   }
   await expect(page.getByText('Round finished', { exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: /Submit score/ })).toBeVisible()
@@ -67,4 +71,21 @@ test('hex matches complete a real 20-move round, save a best, and restart', asyn
   await page.goto('/passport')
   await expect(page.getByRole('heading', { name: 'Personal bests' })).toBeVisible()
   await expect(page.getByRole('link', { name: /Hexagon Match 3/ }).first()).toBeVisible()
+})
+
+test('hex accepts the next move as soon as a slow-frame board settles', async ({ page, isMobile }) => {
+  test.setTimeout(90000)
+  await page.addInitScript(() => {
+    const requestFrame = window.requestAnimationFrame.bind(window)
+    window.requestAnimationFrame = (callback) => requestFrame(() => {
+      setTimeout(() => callback(performance.now()), 100)
+    })
+  })
+  await page.goto('/games/hexagon-match-3')
+  await page.getByRole('button', { name: '▶ Play' }).click()
+  await expect(page.locator('.game-canvas canvas')).toBeVisible()
+  let board = await readBoard(page)
+  for (let turn = 0; turn < 3; turn++) {
+    board = await playMove(page, isMobile, board)
+  }
 })

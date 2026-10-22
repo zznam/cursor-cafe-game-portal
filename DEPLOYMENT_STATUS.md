@@ -17,6 +17,8 @@ Supabase setup instructions are historical.
 - Hexagon Match 3 recognizes all three axes, aligns visible tiles with their
   input targets, guarantees a playable initial board, refreshes stuck boards,
   and finishes a scored round after 20 valid moves.
+- Settled Hexagon boards accept the next move immediately, including at low
+  frame rates; only ongoing cascades retain their animation delay.
 - Score submission survives blocked browser storage, prevents concurrent
   submissions, exposes retryable failures, and uses a modal with contained focus.
 - The contact page opens a GitHub issue draft for review. It no longer claims
