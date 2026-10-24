@@ -1,6 +1,6 @@
 // Run the actual app against ephemeral PostgreSQL. No production credentials.
 import http from 'node:http'
-import { readFileSync, readdirSync } from 'node:fs'
+import { cpSync, readFileSync, readdirSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { PGlite } from '@electric-sql/pglite'
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket'
@@ -30,10 +30,15 @@ const control = http.createServer(async (req, res) => {
   } catch { res.writeHead(500); res.end('Fixture control failed') }
 })
 control.listen(54330, '127.0.0.1')
-const app = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-p', baseURL.port || '3000'], {
+// Exercise the same standalone artifact and asset layout as the container.
+cpSync('public', '.next/standalone/public', { recursive: true })
+cpSync('.next/static', '.next/standalone/.next/static', { recursive: true })
+const app = spawn(process.execPath, ['.next/standalone/server.js'], {
   stdio: 'inherit',
   env: {
     ...process.env,
+    PORT: baseURL.port || '3000',
+    HOSTNAME: '127.0.0.1',
     DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:54329/postgres?sslmode=disable',
     DATABASE_READ_URL: '',
     SESSION_SECRET: 'test-only-secret-shared-across-regions-32-chars',

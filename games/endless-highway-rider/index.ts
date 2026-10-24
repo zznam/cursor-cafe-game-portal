@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class EndlessHighwayScene extends Phaser.Scene {
   private player?: Phaser.GameObjects.Rectangle
@@ -115,6 +116,7 @@ class EndlessHighwayScene extends Phaser.Scene {
 
   endGame() {
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.add.text(400, 250, 'Crash!', { fontSize: '48px', color: '#ff4444', fontStyle: 'bold' }).setOrigin(0.5)
     this.add.text(400, 310, `Score: ${this.score}`, { fontSize: '32px', color: '#fff' }).setOrigin(0.5)
     this.add.text(400, 370, 'Click to Restart', { fontSize: '20px', color: '#aaa' }).setOrigin(0.5)

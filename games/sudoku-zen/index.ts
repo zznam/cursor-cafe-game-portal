@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { formatDuration, reportScore } from '@/lib/game-score'
 
 class SudokuZenScene extends Phaser.Scene {
   private board: number[][] = []
@@ -12,12 +13,16 @@ class SudokuZenScene extends Phaser.Scene {
   private offsetY = 75
   private gfx?: Phaser.GameObjects.Graphics
   private statusText?: Phaser.GameObjects.Text
+  private startedAt = 0
+  private solved = false
 
   constructor() {
     super({ key: 'SudokuZenScene' })
   }
 
   create() {
+    this.startedAt = Date.now()
+    this.solved = false
     this.selectedR = -1
     this.selectedC = -1
     this.cells = []
@@ -185,6 +190,10 @@ class SudokuZenScene extends Phaser.Scene {
     for (let r = 0; r < 9; r++)
       for (let c = 0; c < 9; c++)
         if (this.board[r][c] !== this.solution[r][c]) return
+    if (this.solved) return
+    this.solved = true
+    const seconds = Math.round((Date.now() - this.startedAt) / 1000)
+    reportScore(this, { score: seconds, label: `Solved in ${formatDuration(seconds)}` })
     this.statusText?.setText('🎉 Congratulations! Puzzle Complete!').setColor('#00ff88')
     this.add.text(400, 30, '✨ SOLVED ✨', { fontSize: '28px', color: '#00ff88', fontFamily: 'monospace' }).setOrigin(0.5)
   }

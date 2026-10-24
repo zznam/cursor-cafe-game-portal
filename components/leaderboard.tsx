@@ -50,6 +50,7 @@ export function Leaderboard({ gameId }: LeaderboardProps) {
       try {
         const data = await getLeaderboard(gameId, 10)
         setEntries(data)
+        setErrorMessage('')
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : 'Leaderboard is unavailable')
       } finally {
@@ -58,6 +59,11 @@ export function Leaderboard({ gameId }: LeaderboardProps) {
     }
 
     loadLeaderboard()
+    const refresh = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === gameId) void loadLeaderboard()
+    }
+    window.addEventListener('cafe:leaderboard', refresh)
+    return () => window.removeEventListener('cafe:leaderboard', refresh)
   }, [gameId])
 
   return (

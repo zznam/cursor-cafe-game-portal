@@ -113,9 +113,47 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className="grid md:grid-cols-2 gap-5 mb-12">
-        <Link href="/daily" className="cafe-panel block hover:shadow-lg"><p className="text-sm uppercase tracking-widest mb-2">Fresh every day</p><h2 className="text-3xl font-bold mb-3">Your daily brew</h2><p>One shared challenge. As many tries as you like. Come find your personal best.</p><span className="inline-block mt-4 font-bold">Play today’s challenge →</span></Link>
-        <Link href="/passport" className="cafe-panel block hover:shadow-lg"><p className="text-sm uppercase tracking-widest mb-2">Make yourself at home</p><h2 className="text-3xl font-bold mb-3">Collect a little joy</h2><p>Explore the café, collect game stamps, and discover eight milestone badges.</p><span className="inline-block mt-4 font-bold">Open your passport →</span></Link>
+      <section className="grid md:grid-cols-2 gap-6 mb-16">
+        <Link
+          href="/daily"
+          className="cafe-panel block group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-300 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs uppercase tracking-widest px-2.5 py-1 rounded-full bg-amber-900/10 text-amber-900 font-semibold border border-amber-900/20">
+              Fresh every day
+            </span>
+            <Coffee className="w-5 h-5 text-amber-700/60 group-hover:text-amber-800 transition-colors" />
+          </div>
+          <h2 className="text-3xl font-bold mb-2 text-stone-900 group-hover:text-amber-950 transition-colors">
+            Your daily brew
+          </h2>
+          <p className="text-stone-700 leading-relaxed mb-4">
+            One shared challenge. As many tries as you like. Come find your personal best.
+          </p>
+          <span className="inline-flex items-center gap-1.5 font-bold text-amber-900 group-hover:text-amber-950 group-hover:translate-x-1 transition-all">
+            Play today’s challenge →
+          </span>
+        </Link>
+        <Link
+          href="/passport"
+          className="cafe-panel block group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-300 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs uppercase tracking-widest px-2.5 py-1 rounded-full bg-amber-900/10 text-amber-900 font-semibold border border-amber-900/20">
+              Make yourself at home
+            </span>
+            <Sparkles className="w-5 h-5 text-amber-700/60 group-hover:text-amber-800 transition-colors" />
+          </div>
+          <h2 className="text-3xl font-bold mb-2 text-stone-900 group-hover:text-amber-950 transition-colors">
+            Collect a little joy
+          </h2>
+          <p className="text-stone-700 leading-relaxed mb-4">
+            Explore the café, collect game stamps, and chase personal bests, and unlock ten milestone badges.
+          </p>
+          <span className="inline-flex items-center gap-1.5 font-bold text-amber-900 group-hover:text-amber-950 group-hover:translate-x-1 transition-all">
+            Open your passport →
+          </span>
+        </Link>
       </section>
       <RecentlyPlayed />
 

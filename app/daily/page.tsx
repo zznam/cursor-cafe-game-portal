@@ -16,33 +16,38 @@ export default async function DailyPage({
     challenge = dailyChallenge(date)
   } catch {
     return (
-      <div className="container mx-auto p-8">
-        <h1 className="text-3xl mb-4">Choose a valid challenge date</h1>
-        <Link href="/daily" className="underline">
-          Play today’s daily
-        </Link>
+      <div className="container mx-auto px-4 py-16 max-w-lg text-center">
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
+          <h1 className="text-2xl font-bold text-white mb-3">Choose a valid challenge date</h1>
+          <p className="text-white/60 mb-5">The date provided does not have a challenge record.</p>
+          <Link href="/daily" className="inline-block px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium transition-colors">
+            Play today’s daily
+          </Link>
+        </div>
       </div>
     )
   }
   const game = await getGameBySlug(challenge.slug)
   if (!game)
     return (
-      <div className="container mx-auto p-8">
-        <h1 className="text-3xl mb-4">The daily is brewing</h1>
-        <p>Today’s game is not available yet. Please check back soon.</p>
-        <Link href="/games" className="underline">
-          Browse games
-        </Link>
+      <div className="container mx-auto px-4 py-16 max-w-lg text-center">
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
+          <h1 className="text-2xl font-bold text-white mb-3">The daily is brewing</h1>
+          <p className="text-white/70 mb-5">Today’s game is not available yet. Please check back soon.</p>
+          <Link href="/games" className="inline-block px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium transition-colors">
+            Browse games
+          </Link>
+        </div>
       </div>
     )
   return (
     <div className="max-w-3xl mx-auto px-3 py-8 space-y-6">
       <section className="cafe-panel">
-        <p className="uppercase tracking-widest text-sm mb-3">
+        <p className="uppercase tracking-widest text-xs font-semibold text-amber-900/80 mb-2">
           A little ritual, every day
         </p>
-        <h1 className="text-4xl font-bold mb-2">Daily brew</h1>
-        <h2 className="text-xl mb-4">{game.title}</h2>
+        <h1 className="text-4xl font-bold mb-1 text-stone-900">Daily brew</h1>
+        <h2 className="text-xl font-semibold mb-4 text-amber-950">{game.title}</h2>
         <DailyIntro key={challenge.date} challenge={challenge} />
       </section>
       <GamePlayer

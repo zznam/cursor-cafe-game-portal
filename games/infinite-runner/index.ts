@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 let highScore = 0
 
@@ -313,6 +314,7 @@ class InfiniteRunnerScene extends Phaser.Scene {
   private handleObstacleHit() {
     if (this.gameOver) return
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.trailParticles.stop()
     this.physics.pause()
 

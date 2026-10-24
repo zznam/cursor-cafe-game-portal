@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 const PIPE_VELOCITY = -200
 const FLAP_VELOCITY = -350
@@ -247,6 +248,7 @@ class FlappyScene extends Phaser.Scene {
   private triggerGameOver() {
     if (this.gameOver) return
     this.gameOver = true
+    reportScore(this, { score: this.score })
 
     this.pipeTimer?.destroy()
     this.physics.pause()

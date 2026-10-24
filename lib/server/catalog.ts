@@ -40,7 +40,15 @@ export interface CatalogFilters {
   mood?: 'Relaxed' | 'Focused' | 'Energetic'
   duration?: 'quick' | 'short' | 'long'
   touch?: boolean
+  sort?: 'popular' | 'rating' | 'newest' | 'title'
 }
+// Whitelisted ORDER BY clauses; never interpolate user input into SQL.
+const ORDER_BY = {
+  popular: 'play_count DESC, id',
+  rating: 'average_rating DESC, total_ratings DESC, play_count DESC, id',
+  newest: 'created_at DESC, id',
+  title: 'title ASC, id',
+} as const
 function filterQuery(options: CatalogFilters) {
   const input = gamesQuerySchema.parse({
     ...options,
@@ -70,7 +78,7 @@ export async function getGames(options: CatalogFilters = {}) {
   const { input, where, values } = filterQuery(options)
   return (
     await query<GameRow>(
-      `SELECT * FROM public.games ${where} ORDER BY play_count DESC, id LIMIT $7 OFFSET $8`,
+      `SELECT * FROM public.games ${where} ORDER BY ${ORDER_BY[input.sort ?? 'popular']} LIMIT $7 OFFSET $8`,
       [...values, input.limit, input.offset],
       { readOnly: true },
     )

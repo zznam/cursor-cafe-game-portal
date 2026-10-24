@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { MessageSquare, Send, User } from 'lucide-react'
 import { getComments, submitComment } from '@/lib/api'
@@ -19,18 +19,16 @@ export function CommentsSection({ gameId }: CommentsSectionProps) {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const loadComments = useCallback(async () => {
-    try {
-      const data = await getComments(gameId)
-      setComments(data)
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Comments are unavailable')
-    } finally {
-      setLoading(false)
-    }
+  useEffect(() => {
+    let active = true
+    void getComments(gameId)
+      .then((data) => { if (active) setComments(data) })
+      .catch((error: unknown) => {
+        if (active) setErrorMessage(error instanceof Error ? error.message : 'Comments are unavailable')
+      })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
   }, [gameId])
-
-  useEffect(() => { void loadComments() }, [loadComments])
 
   const handleSubmit = async () => {
     if (!username.trim() || !content.trim()) return
@@ -40,7 +38,7 @@ export function CommentsSection({ gameId }: CommentsSectionProps) {
     try {
       await submitComment(gameId, content, username)
       setContent('')
-      await loadComments()
+      setComments(await getComments(gameId))
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Could not post comment')
     } finally {

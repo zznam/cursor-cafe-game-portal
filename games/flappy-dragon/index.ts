@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class FlappyDragonScene extends Phaser.Scene {
   private dragon?: Phaser.Physics.Arcade.Image
@@ -104,6 +105,7 @@ class FlappyDragonScene extends Phaser.Scene {
   endGame() {
     if (this.gameOver) return
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.pipeTimer?.remove()
     this.physics.pause()
 

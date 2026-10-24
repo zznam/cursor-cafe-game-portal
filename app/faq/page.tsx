@@ -117,20 +117,26 @@ function FAQAccordion({
   onToggle: () => void;
 }) {
   return (
-    <div className="border border-white/10 rounded-xl overflow-hidden transition-colors hover:border-white/20">
+    <div
+      className={`border rounded-xl overflow-hidden transition-all duration-200 ${
+        isOpen
+          ? "border-purple-500/30 bg-white/[0.04] shadow-md shadow-purple-500/5"
+          : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.03]"
+      }`}
+    >
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-4 p-5 text-left"
+        className="w-full flex items-center justify-between gap-4 p-5 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-inset"
       >
         <span className="text-white font-medium">{item.question}</span>
         <ChevronDown
-          className={`w-5 h-5 text-white/50 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`w-5 h-5 text-white/50 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 text-purple-300" : ""}`}
         />
       </button>
       <div
         className={`overflow-hidden transition-all duration-200 ${isOpen ? "max-h-96" : "max-h-0"}`}
       >
-        <div className="px-5 pb-5 text-white/60 leading-relaxed">
+        <div className="px-5 pb-5 text-white/70 leading-relaxed text-sm">
           {item.answer}
         </div>
       </div>
@@ -153,7 +159,7 @@ export default function FAQPage() {
               Help Center
             </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-white">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 bg-linear-to-r from-amber-200 via-purple-300 to-pink-300 bg-clip-text text-transparent">
             Frequently Asked Questions
           </h1>
           <p className="text-lg text-white/60">

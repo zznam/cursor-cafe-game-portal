@@ -1,3 +1,5 @@
+import { LOWER_IS_BETTER } from './game-score'
+
 export const CAFE_GAMES = [
   'coffee-connections',
   'pastry-blocks',
@@ -65,7 +67,12 @@ export function isBetter(
   previous?: GameResult,
 ) {
   if (!previous) return true
-  if (slug === 'coffee-connections') return next.score < previous.score
+  if (LOWER_IS_BETTER.has(slug))
+    return (
+      next.score < previous.score ||
+      (next.score === previous.score &&
+        (next.secondary ?? 0) > (previous.secondary ?? 0))
+    )
   return (
     next.score > previous.score ||
     (next.score === previous.score &&

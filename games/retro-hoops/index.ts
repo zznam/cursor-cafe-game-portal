@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 import { INPUT_CANCEL_EVENT } from '@/lib/game-runtime'
 
 class RetroHoopsScene extends Phaser.Scene {
@@ -144,6 +145,7 @@ class RetroHoopsScene extends Phaser.Scene {
 
   endGame() {
     this.gameOver = true
+    reportScore(this, { score: this.score })
     this.physics.pause()
     this.add.text(400, 260, "Time's Up!", { fontSize: '48px', color: '#ff4444', fontStyle: 'bold' }).setOrigin(0.5)
     this.add.text(400, 320, `Score: ${this.score}`, { fontSize: '32px', color: '#fff' }).setOrigin(0.5)

@@ -54,3 +54,6 @@ next-env.d.ts
 infra/aws/backend.hcl
 infra/aws/bootstrap/backend.hcl
 runtime-secrets.json
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

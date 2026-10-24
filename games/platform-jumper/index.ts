@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser'
+import { reportScore } from '@/lib/game-score'
 
 class PlatformJumperScene extends Phaser.Scene {
   private player?: Phaser.Physics.Arcade.Image
@@ -132,6 +133,7 @@ class PlatformJumperScene extends Phaser.Scene {
     // fall off screen
     if (this.player && this.player.y > 650) {
       this.gameOver = true
+      reportScore(this, { score: this.score })
       this.physics.pause()
       this.add.text(400, 260, 'Game Over!', { fontSize: '48px', color: '#ff4444', fontStyle: 'bold' }).setOrigin(0.5).setScrollFactor(0)
       this.add.text(400, 320, `Score: ${this.score}`, { fontSize: '32px', color: '#fff' }).setOrigin(0.5).setScrollFactor(0)

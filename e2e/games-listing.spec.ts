@@ -45,8 +45,8 @@ test.describe('Games Listing', () => {
     const allButton = page.getByRole('button', { name: 'All', exact: true })
 
     await actionButton.click()
-    await expect(actionButton).toHaveClass(/bg-white text-purple-600/)
-    await expect(allButton).toHaveClass(/bg-white\/10 text-white/)
+    await expect(actionButton).toHaveClass(/bg-white text-purple-700/)
+    await expect(allButton).toHaveClass(/bg-white\/10 text-white\/80/)
 
     const gameCards = page.locator('a[href^="/games/"]').filter({
       has: page.locator('img'),
@@ -81,8 +81,8 @@ test.describe('Games Listing', () => {
     const actionFilteredCount = await gameCards.count()
 
     await allButton.click()
-    await expect(allButton).toHaveClass(/bg-white text-purple-600/)
-    await expect(actionButton).toHaveClass(/bg-white\/10 text-white/)
+    await expect(allButton).toHaveClass(/bg-white text-purple-700/)
+    await expect(actionButton).toHaveClass(/bg-white\/10 text-white\/80/)
 
     await expect.poll(() => gameCards.count()).toBeGreaterThanOrEqual(actionFilteredCount)
   })

@@ -2,6 +2,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { GameCard } from '@/components/game-card'
+import { Gamepad2 } from 'lucide-react'
 import { getGames } from '@/lib/api'
 import type { GameMetadata } from '@/types/game'
 import type { CatalogFilters } from '@/lib/server/catalog'
@@ -71,7 +72,7 @@ export function GamesGrid({
   return (
     <>
       <form
-        className="mb-6 space-y-4"
+        className="mb-8 p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm space-y-4 shadow-lg shadow-black/20"
         onSubmit={(event) => {
           event.preventDefault()
           const data = new FormData(event.currentTarget),
@@ -83,24 +84,24 @@ export function GamesGrid({
           navigate(`/games?${next}`)
         }}
       >
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <label>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <label className="block text-xs font-semibold text-white/70 uppercase tracking-wider">
             Search
             <input
               name="search"
               defaultValue={filters.search ?? ''}
               maxLength={80}
-              className="discovery-field mt-1"
+              className="discovery-field mt-1.5"
               placeholder="Find your next favorite"
             />
           </label>
-          <label>
+          <label className="block text-xs font-semibold text-white/70 uppercase tracking-wider">
             Mood
             <select
               aria-label="Mood"
               name="mood"
               defaultValue={filters.mood ?? ''}
-              className="discovery-field mt-1"
+              className="discovery-field mt-1.5"
             >
               <option value="">Any mood</option>
               {['Relaxed', 'Focused', 'Energetic'].map((m) => (
@@ -108,13 +109,13 @@ export function GamesGrid({
               ))}
             </select>
           </label>
-          <label>
+          <label className="block text-xs font-semibold text-white/70 uppercase tracking-wider">
             Session length
             <select
               aria-label="Session length"
               name="duration"
               defaultValue={filters.duration ?? ''}
-              className="discovery-field mt-1"
+              className="discovery-field mt-1.5"
             >
               <option value="">Any length</option>
               <option value="quick">Up to 3 minutes</option>
@@ -122,7 +123,7 @@ export function GamesGrid({
               <option value="long">Over 5 minutes</option>
             </select>
           </label>
-          <label>
+          <label className="block text-xs font-semibold text-white/70 uppercase tracking-wider">
             Input support
             <select
               aria-label="Input support"
@@ -130,17 +131,32 @@ export function GamesGrid({
               defaultValue={
                 filters.touch === undefined ? '' : String(filters.touch)
               }
-              className="discovery-field mt-1"
+              className="discovery-field mt-1.5"
             >
               <option value="">Any input</option>
               <option value="true">Touch friendly</option>
               <option value="false">Keyboard / mouse only</option>
             </select>
           </label>
+          <label className="block text-xs font-semibold text-white/70 uppercase tracking-wider">
+            Sort by
+            <select
+              aria-label="Sort by"
+              name="sort"
+              defaultValue={filters.sort ?? ''}
+              className="discovery-field mt-1.5"
+              onChange={(event) => event.currentTarget.form?.requestSubmit()}
+            >
+              <option value="">Most played</option>
+              <option value="rating">Top rated</option>
+              <option value="newest">Newest</option>
+              <option value="title">A–Z</option>
+            </select>
+          </label>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 pt-1">
           <button
-            className="cafe-control primary"
+            className="cafe-control primary transition-transform hover:scale-[1.02]"
             type="submit"
             disabled={navigating}
           >
@@ -148,7 +164,7 @@ export function GamesGrid({
           </button>
           <button
             type="button"
-            className="cafe-control"
+            className="cafe-control transition-transform hover:scale-[1.02]"
             disabled={navigating}
             onClick={() => navigate('/games')}
           >
@@ -157,7 +173,7 @@ export function GamesGrid({
           <button
             type="button"
             disabled={loading || navigating}
-            className="cafe-control"
+            className="cafe-control transition-transform hover:scale-[1.02]"
             onClick={() => void surprise()}
           >
             Surprise me
@@ -171,7 +187,7 @@ export function GamesGrid({
             aria-pressed={(filters.category ?? '') === category}
             disabled={navigating}
             onClick={() => navigate(`/games?${query({ category })}`)}
-            className={`px-4 min-h-11 py-2 rounded-full ${(filters.category ?? '') === category ? 'bg-white text-purple-600' : 'bg-white/10 text-white'}`}
+            className={`px-4 min-h-11 py-2 rounded-full font-medium text-sm transition-all duration-200 ${(filters.category ?? '') === category ? 'bg-white text-purple-700 shadow-md shadow-purple-500/20 font-semibold scale-105' : 'bg-white/10 text-white/80 hover:bg-white/15 hover:text-white'}`}
           >
             {category || 'All'}
           </button>
@@ -183,18 +199,22 @@ export function GamesGrid({
           : `${items.length} of ${total} games ready to play`}
       </p>
       {error && (
-        <p role="alert" className="mb-4 text-red-300">
+        <p role="alert" className="mb-4 text-red-300 bg-red-500/10 border border-red-500/20 p-3 rounded-lg">
           {error}{' '}
-          <button className="underline" onClick={() => void more()}>
+          <button className="underline font-medium hover:text-red-200" onClick={() => void more()}>
             Retry
           </button>
         </p>
       )}
       {!items.length ? (
-        <div className="text-center py-16">
-          <p>No games match these filters.</p>
+        <div className="text-center py-16 px-4 bg-white/5 border border-white/10 rounded-2xl max-w-md mx-auto my-8">
+          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 text-white/60">
+            <Gamepad2 className="w-6 h-6" />
+          </div>
+          <p className="text-lg font-medium text-white mb-1">No games match these filters.</p>
+          <p className="text-sm text-white/50 mb-5">Try relaxing your search terms or picking another category.</p>
           <button
-            className="cafe-control mt-4"
+            className="cafe-control"
             disabled={navigating}
             onClick={() => navigate('/games')}
           >
@@ -212,10 +232,10 @@ export function GamesGrid({
         </div>
       )}
       {items.length < total && (
-        <div className="mt-8 text-center">
+        <div className="mt-10 text-center">
           <button
             disabled={loading || navigating}
-            className="cafe-control"
+            className="cafe-control px-6 py-2.5 transition-transform hover:scale-[1.02]"
             onClick={() => void more()}
           >
             {loading ? 'Loading…' : 'Load more games'}

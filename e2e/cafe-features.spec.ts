@@ -88,7 +88,7 @@ test('a real solved daily puzzle records results and can be replayed from a date
   await page.goto('/passport')
   await expect(
     page.getByText(
-      `1 stamps collected · ${challenge.practice ? 1 : 2} of 8 badges`,
+      `1 stamps collected · ${challenge.practice ? 1 : 2} of 10 badges`,
     ),
   ).toBeVisible()
   await expect(page.getByText(/Best: Coffee served/)).toBeVisible()
@@ -108,7 +108,7 @@ test('tabs merge independent stamps and storage failures keep the game usable', 
   })
   await page.goto('/passport')
   await expect(
-    page.getByText('0 stamps collected · 0 of 8 badges'),
+    page.getByText('0 stamps collected · 0 of 10 badges'),
   ).toBeVisible()
   const other = await context.newPage()
   await other.bringToFront()
@@ -123,7 +123,7 @@ test('tabs merge independent stamps and storage failures keep the game usable', 
   await other.keyboard.press('ArrowLeft')
   await page.bringToFront()
   await expect(
-    page.getByText('1 stamps collected · 1 of 8 badges'),
+    page.getByText('1 stamps collected · 1 of 10 badges'),
   ).toBeVisible()
   await other.close()
   await page.addInitScript(() => {
@@ -197,6 +197,11 @@ for (const slug of ['pastry-blocks', 'cup-stack', 'sugar-orbit']) {
         }
       if (isMobile) await canvas.tap({ position })
       else await canvas.click({ position })
+      // Phaser consumes pointer input on its next frame. Let that frame render
+      // before sending another placement so fast automation cannot coalesce it.
+      await page.evaluate(() => new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      }))
     }
     if (slug === 'pastry-blocks') {
       let board = Array<number>(64).fill(0),
