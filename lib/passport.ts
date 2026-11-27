@@ -135,3 +135,63 @@ export function summarizeActivities(events: Activity[]) {
     badges: BADGES.filter((_, i) => checks[i]).map((b) => b[0]),
   }
 }
+
+export interface WeeklyRecap {
+  /** Monday (UTC) that starts the current week, YYYY-MM-DD. */
+  weekStart: string
+  plays: number
+  lastWeekPlays: number
+  finished: number
+  games: number
+  newGames: number
+  top?: { slug: string; title: string; plays: number }
+}
+/**
+ * Rounds started and finished in the current Monday–Sunday UTC week (the
+ * same calendar the daily challenge uses), compared with the previous week.
+ * Replayed events are counted once per run, like the rest of the passport.
+ */
+export function weeklyRecap(events: Activity[], now: Date): WeeklyRecap {
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  const start = today - ((now.getUTCDay() + 6) % 7) * DAY
+  const previous = start - 7 * DAY
+  const starts = new Map(
+    events.filter((e) => e.kind === 'start').map((e) => [e.run, e]),
+  )
+  const firstPlayed: Record<string, number> = {}
+  for (const e of starts.values()) {
+    const at = Date.parse(e.at)
+    if (!(e.slug in firstPlayed) || at < firstPlayed[e.slug]) firstPlayed[e.slug] = at
+  }
+  const plays: Record<string, { title: string; plays: number }> = {}
+  let total = 0,
+    lastWeekPlays = 0
+  const runs = new Set<string>()
+  for (const e of starts.values()) {
+    const at = Date.parse(e.at)
+    if (at >= previous && at < start) lastWeekPlays++
+    if (at < start || at > now.getTime()) continue
+    total++
+    runs.add(e.run)
+    const entry = (plays[e.slug] ??= { title: e.title, plays: 0 })
+    entry.plays++
+  }
+  const finished = new Set(
+    events
+      .filter((e) => e.kind === 'result' && runs.has(e.run) && starts.get(e.run)?.slug === e.slug)
+      .map((e) => e.run),
+  ).size
+  const [topSlug, topEntry] =
+    Object.entries(plays).sort(
+      (a, b) => b[1].plays - a[1].plays || a[1].title.localeCompare(b[1].title),
+    )[0] ?? []
+  return {
+    weekStart: new Date(start).toISOString().slice(0, 10),
+    plays: total,
+    lastWeekPlays,
+    finished,
+    games: Object.keys(plays).length,
+    newGames: Object.keys(plays).filter((slug) => firstPlayed[slug] >= start).length,
+    top: topSlug && topEntry ? { slug: topSlug, ...topEntry } : undefined,
+  }
+}

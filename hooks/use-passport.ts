@@ -9,7 +9,12 @@ import {
 const PREFIX = 'cafe:v1:activity:'
 const listeners = new Set<() => void>()
 const fallback = new Map<string, Activity>()
-let snapshot = { ...summarizeActivities([]), unavailable: false, loaded: false }
+let snapshot = {
+  ...summarizeActivities([]),
+  activities: [] as Activity[],
+  unavailable: false,
+  loaded: false,
+}
 const serverSnapshot = snapshot
 function refresh() {
   const records = new Map(fallback)
@@ -34,8 +39,10 @@ function refresh() {
   } catch {
     unavailable = true
   }
+  const activities = [...records.values()]
   snapshot = {
-    ...summarizeActivities([...records.values()]),
+    ...summarizeActivities(activities),
+    activities,
     unavailable,
     loaded: true,
   }
