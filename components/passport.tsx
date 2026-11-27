@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePassport } from '@/hooks/use-passport'
-import { BADGES, dailyStreak } from '@/lib/passport'
+import { BADGES, dailyStreak, weeklyRecap } from '@/lib/passport'
 import type { GameMetadata } from '@/types/game'
 export function Passport({ games }: { games: GameMetadata[] }) {
   const progress = usePassport()
@@ -29,6 +29,8 @@ export function Passport({ games }: { games: GameMetadata[] }) {
       hint: topPlays ? `${topPlays} round${topPlays === 1 ? '' : 's'}` : undefined,
     },
   ]
+  const week = weeklyRecap(progress.activities, new Date())
+  const weekChange = week.plays - week.lastWeekPlays
   const history = [
     ...Object.entries(progress.days).map(([date, day]) => ({
       date,
@@ -81,6 +83,63 @@ export function Passport({ games }: { games: GameMetadata[] }) {
           </div>
         ))}
       </section>
+      {progress.loaded && (week.plays > 0 || week.lastWeekPlays > 0) && (
+        <section aria-labelledby="week-heading" className="rounded-xl border border-white/10 bg-white/5 p-5">
+          <h2 id="week-heading" className="text-2xl font-bold text-white">
+            This week
+          </h2>
+          <p className="text-sm text-white/50 mb-4">Since Monday {week.weekStart} (UTC)</p>
+          {week.plays === 0 ? (
+            <p className="text-white/80">
+              No rounds yet this week. Last week you started {week.lastWeekPlays}.{' '}
+              <Link href="/daily" className="underline text-amber-300 hover:text-amber-200 font-medium">
+                Start with today&apos;s daily
+              </Link>
+              .
+            </p>
+          ) : (
+            <dl className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <dt className="text-xs uppercase tracking-wider font-semibold text-white/50">Rounds</dt>
+                <dd className="text-2xl font-bold text-white">{week.plays}</dd>
+                <dd className="text-sm text-amber-200/80">
+                  {weekChange === 0
+                    ? 'Same as last week'
+                    : `${weekChange > 0 ? '+' : '−'}${Math.abs(weekChange)} vs last week`}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wider font-semibold text-white/50">Finished</dt>
+                <dd className="text-2xl font-bold text-white">{week.finished}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wider font-semibold text-white/50">Games</dt>
+                <dd className="text-2xl font-bold text-white">{week.games}</dd>
+                {week.newGames > 0 && (
+                  <dd className="text-sm text-amber-200/80">{week.newGames} new to you</dd>
+                )}
+              </div>
+              <div className="min-w-0">
+                <dt className="text-xs uppercase tracking-wider font-semibold text-white/50">Favourite</dt>
+                <dd className="text-2xl font-bold text-white truncate">
+                  {week.top ? (
+                    <Link href={`/games/${week.top.slug}`} className="hover:text-purple-300">
+                      {titles[week.top.slug] ?? week.top.title}
+                    </Link>
+                  ) : (
+                    '—'
+                  )}
+                </dd>
+                {week.top && (
+                  <dd className="text-sm text-amber-200/80">
+                    {week.top.plays} round{week.top.plays === 1 ? '' : 's'}
+                  </dd>
+                )}
+              </div>
+            </dl>
+          )}
+        </section>
+      )}
       {bests.length > 0 && (
         <section>
           <h2 className="text-2xl font-bold text-white mb-4">Personal bests</h2>
