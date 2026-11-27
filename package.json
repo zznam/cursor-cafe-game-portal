@@ -47,7 +47,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.5.8",
+    "@electric-sql/pglite": "^0.5.12",
     "@electric-sql/pglite-socket": "^0.2.12",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
