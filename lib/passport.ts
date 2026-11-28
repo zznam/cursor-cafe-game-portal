@@ -111,18 +111,29 @@ export function summarizeActivities(events: Activity[]) {
   const streak = dailyStreak(finishedDates)
   const count = Object.keys(stamps).length,
     dailyCount = finishedDates.length
-  const checks = [
-    count >= 1,
-    count >= 5,
-    count >= 10,
-    new Set(Object.values(stamps).map((s) => s.category)).size >= 3,
-    CAFE_GAMES.every((s) => stamps[s]),
-    dailyCount >= 1,
-    dailyCount >= 7,
-    dailyCount >= 30,
-    streak.longest >= 3,
-    Object.keys(bests).length >= 5,
+  const categories = new Set(Object.values(stamps).map((s) => s.category)).size,
+    cafeTried = CAFE_GAMES.filter((s) => stamps[s]).length,
+    bestCount = Object.keys(bests).length
+  // [value, goal] per badge, in BADGES order; a badge is earned once value reaches goal.
+  const progress: [number, number][] = [
+    [count, 1],
+    [count, 5],
+    [count, 10],
+    [categories, 3],
+    [cafeTried, CAFE_GAMES.length],
+    [dailyCount, 1],
+    [dailyCount, 7],
+    [dailyCount, 30],
+    [streak.longest, 3],
+    [bestCount, 5],
   ]
+  const checks = progress.map(([value, goal]) => value >= goal)
+  const badgeProgress = Object.fromEntries(
+    BADGES.map(([id], i) => [
+      id,
+      { value: Math.min(progress[i][0], progress[i][1]), goal: progress[i][1] },
+    ]),
+  ) as Record<(typeof BADGES)[number][0], { value: number; goal: number }>
   return {
     stamps,
     bests,
@@ -133,6 +144,7 @@ export function summarizeActivities(events: Activity[]) {
     finishedDates,
     longestStreak: streak.longest,
     badges: BADGES.filter((_, i) => checks[i]).map((b) => b[0]),
+    badgeProgress,
   }
 }
 
