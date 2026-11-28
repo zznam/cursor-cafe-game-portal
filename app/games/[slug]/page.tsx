@@ -8,6 +8,7 @@ import { CommentsSection } from '@/components/comments-section'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { GAME_CONTROLS } from '@/lib/game-controls'
+import { ShareResult } from '@/components/share-result'
 import { ArrowLeft, Share2, Star, Play, ExternalLink } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
@@ -40,7 +41,7 @@ export default async function GamePage({
   const controlsList = controlsData?.controls ?? []
 
   const shareUrl = `${siteUrl()}/games/${game.slug}`
-  const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out ${game.title} on Game Portal!`)}&url=${encodeURIComponent(shareUrl)}`
+  const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Play ${game.title} at Cursor Café`)}&url=${encodeURIComponent(shareUrl)}`
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -142,6 +143,10 @@ export default async function GamePage({
                   Share on X
                 </a>
               </Button>
+              <ShareResult
+                text={`Play ${game.title} at Cursor Café: ${shareUrl}`}
+                label="Share link"
+              />
             </div>
           </div>
 
