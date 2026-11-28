@@ -23,6 +23,24 @@ async function readBoard(page: Page): Promise<HexBoard> {
   }, png.toString('base64'))
 }
 
+/**
+ * Reads the board once it has stopped animating: two consecutive reads must agree and show
+ * no matches (and differ from `before`, when given). With slow frames, a single read can land
+ * mid-fall or mid-cascade and see colours that look like matches.
+ */
+async function readSettledBoard(page: Page, before?: string): Promise<HexBoard> {
+  let previous = ''
+  let board: HexBoard = []
+  await expect.poll(async () => {
+    board = await readBoard(page)
+    const current = JSON.stringify(board)
+    const settled = current === previous && findHexMatches(board).length === 0 && current !== before
+    previous = current
+    return settled
+  }, { timeout: 20000, intervals: [250] }).toBe(true)
+  return board
+}
+
 async function playMove(page: Page, isMobile: boolean, board: HexBoard): Promise<HexBoard> {
   const canvas = page.locator('.game-canvas canvas')
   expect(findHexMatches(board)).toEqual([])
@@ -43,11 +61,7 @@ async function playMove(page: Page, isMobile: boolean, board: HexBoard): Promise
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     }))
   }
-  await expect.poll(async () => {
-    board = await readBoard(page)
-    return JSON.stringify(board) !== before && findHexMatches(board).length === 0
-  }, { timeout: 15000 }).toBe(true)
-  return board
+  return readSettledBoard(page, before)
 }
 
 test('hex matches complete a real 20-move round, save a best, and restart', async ({ page, isMobile }) => {
@@ -56,7 +70,7 @@ test('hex matches complete a real 20-move round, save a best, and restart', asyn
   await page.getByRole('button', { name: '▶ Play' }).click()
   const canvas = page.locator('.game-canvas canvas')
   await expect(canvas).toBeVisible()
-  let board = await readBoard(page)
+  let board = await readSettledBoard(page)
   for (let turn = 0; turn < 20; turn++) {
     board = await playMove(page, isMobile, board)
   }
@@ -84,7 +98,7 @@ test('hex accepts the next move as soon as a slow-frame board settles', async ({
   await page.goto('/games/hexagon-match-3')
   await page.getByRole('button', { name: '▶ Play' }).click()
   await expect(page.locator('.game-canvas canvas')).toBeVisible()
-  let board = await readBoard(page)
+  let board = await readSettledBoard(page)
   for (let turn = 0; turn < 3; turn++) {
     board = await playMove(page, isMobile, board)
   }
