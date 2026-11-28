@@ -7,6 +7,7 @@ import { GameMetadata } from '@/types/game'
 import { Star, Play, Heart, Sword, Zap, Puzzle, Target, MapPin, Rocket, Car, Trophy, Gamepad2 } from 'lucide-react'
 import { toggleFavorite } from '@/lib/game-loader'
 import { useBrowserStorage } from '@/hooks/use-browser-storage'
+import { usePassport } from '@/hooks/use-passport'
 
 interface GameCardProps {
   game: GameMetadata
@@ -40,6 +41,10 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 
 export function GameCard({ game }: GameCardProps) {
   const stored = useBrowserStorage('favorites')
+  // Passport progress lives in this browser; the server render shows no badge.
+  const passport = usePassport()
+  const played = Boolean(passport.stamps[game.slug])
+  const best = passport.bests[game.slug]
   let favorite = false
   try { const parsed: unknown = JSON.parse(stored || '[]'); favorite = Array.isArray(parsed) && parsed.includes(game.id) } catch { /* Invalid local storage is ignored. */ }
 
@@ -99,6 +104,11 @@ export function GameCard({ game }: GameCardProps) {
           <p className="text-sm text-white/60 line-clamp-2 mb-3">
             {game.description}
           </p>
+          {played && (
+            <p className="text-xs font-semibold text-emerald-300 mb-1">
+              ✓ Played{best ? ` · Best ${best.label}` : ''}
+            </p>
+          )}
           <p className="text-xs text-amber-200/90 mb-3">{game.mood} · {game.sessionMinutes ? `~${game.sessionMinutes} min` : 'Take your time'} · {game.touch ? 'Touch + desktop' : 'Keyboard / mouse'}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-sm">
