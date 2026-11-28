@@ -171,6 +171,19 @@ export function Passport({ games }: { games: GameMetadata[] }) {
               </span>
               <h3 className="font-bold mt-1 text-base">{title}</h3>
               <p className={`text-sm mt-1 leading-relaxed ${progress.badges.includes(id) ? 'text-stone-700' : 'text-white/50'}`}>{description}</p>
+              {!progress.badges.includes(id) && progress.badgeProgress[id].value > 0 && (
+                <>
+                  <progress
+                    className="mt-3 h-1.5 w-full accent-amber-400"
+                    value={progress.badgeProgress[id].value}
+                    max={progress.badgeProgress[id].goal}
+                    aria-label={`${title} progress`}
+                  />
+                  <p className="mt-1 text-xs text-amber-200/80">
+                    {progress.badgeProgress[id].value} / {progress.badgeProgress[id].goal}
+                  </p>
+                </>
+              )}
             </div>
           ))}
         </div>

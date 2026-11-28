@@ -274,3 +274,17 @@ test('orbit daily ends exactly at 90 seconds even across a fixed-step boundary',
   assert.equal(orbitRunResult(90 + 1 / 60, true, true)?.score, 90000)
   assert.equal(orbitRunResult(95, true, false)?.score, 95000)
 })
+test('badge progress counts toward each goal and caps at the goal', () => {
+  const events: Activity[] = []
+  for (const [i, slug] of ['cup-stack', 'game-a', 'game-b'].entries())
+    events.push({ ...event(`p${i}`, slug, 'start'), category: ['Puzzle', 'Arcade', 'Puzzle'][i] })
+  const { badgeProgress, badges } = summarizeActivities(events)
+  assert.deepEqual(badgeProgress.first, { value: 1, goal: 1 })
+  assert.deepEqual(badgeProgress.five, { value: 3, goal: 5 })
+  assert.deepEqual(badgeProgress.categories, { value: 2, goal: 3 })
+  assert.deepEqual(badgeProgress['new-four'], { value: 1, goal: CAFE_GAMES.length })
+  assert.deepEqual(badgeProgress['daily-first'], { value: 0, goal: 1 })
+  assert.deepEqual(badges, ['first'])
+  for (const [id, { value, goal }] of Object.entries(badgeProgress))
+    assert.equal(value >= goal, badges.includes(id as never), id)
+})
